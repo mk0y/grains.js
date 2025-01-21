@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Minimal Grains.js Example</title>
+    <script src="../dist/grains.min.js"></script>
+    <style>
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div g-state="counter" g-init='{"count": 0}'>
+      <h1>Count: <span g-text="count"></span></h1>
+      <button g-click="increment">+1</button>
+      <button g-click="decrement" g-disabled="{count <= 0}">-1</button>
+      <button g-action="undo" g-disabled>Undo</button>
+      <button g-action="redo" g-disabled>Redo</button>
+    </div>
+
+    <script>
+      function increment(ctx) {
+        ctx.set({ count: ctx.get("count") + 1 });
+      }
+      function decrement(ctx) {
+        ctx.set({ count: ctx.get("count") - 1 });
+      }
+    </script>
+  </body>
+</html>

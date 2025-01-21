@@ -1,0 +1,44 @@
+{
+  "name": "grains.js",
+  "version": "0.1.0",
+  "description": "A lightweight reactive micro-states management library for HTML",
+  "main": "dist/grains.js",
+  "module": "dist/grains.mjs",
+  "types": "dist/grains.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "reactive",
+    "state-management",
+    "javascript",
+    "html",
+    "dom"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "jsdom": "^24.0.0",
+    "rollup": "^4.9.6",
+    "rollup-plugin-analyzer": "^4.0.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
