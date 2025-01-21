@@ -14,9 +14,9 @@
     <div g-state="counter" g-init='{"count": 0}'>
       <h1>Count: <span g-text="count"></span></h1>
       <button g-click="increment">+1</button>
-      <button g-click="decrement" g-disabled="{count <= 0}">-1</button>
-      <button g-action="undo" g-disabled>Undo</button>
-      <button g-action="redo" g-disabled>Redo</button>
+      <button g-click="decrement">-1</button>
+      <button g-action="undo" g-disabled="!canUndo">Undo</button>
+      <button g-action="redo" g-disabled="!canRedo">Redo</button>
     </div>
 
     <script>

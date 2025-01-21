@@ -278,13 +278,6 @@ function updateElementContent(el: HTMLElement) {
               action === "undo"
                 ? history.past.length === 0
                 : history.future.length === 0;
-          } else {
-            try {
-              const expr = resolvePlaceholders(grainEl, value);
-              el.disabled = Function(`return ${expr}`)();
-            } catch (error) {
-              console.error("Error evaluating g-disabled:", error);
-            }
           }
         }
       }
