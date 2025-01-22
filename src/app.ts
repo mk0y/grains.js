@@ -42,6 +42,7 @@ const DIRECTIVES = [
   "g-action",
   "g-args",
   "g-disabled",
+  "g-show",
 ] as const;
 
 // Store for all grain instances and their history
@@ -278,6 +279,49 @@ function updateElementContent(el: HTMLElement) {
               action === "undo"
                 ? history.past.length === 0
                 : history.future.length === 0;
+          }
+        }
+      } else if (directive === "g-show") {
+        const grainEl = findClosestGrainElement(el);
+        if (grainEl) {
+          try {
+            const [prop, op, compareValue] = value.split(/\s+/);
+            const stateValue = getValueAtPath(grainEl.$grain, prop);
+            const parsedCompareValue = JSON.parse(compareValue);
+            let show = false;
+
+            switch (op) {
+              case "==":
+                show = stateValue == parsedCompareValue;
+                break;
+              case "===":
+                show = stateValue === parsedCompareValue;
+                break;
+              case "!=":
+                show = stateValue != parsedCompareValue;
+                break;
+              case "!==":
+                show = stateValue !== parsedCompareValue;
+                break;
+              case ">":
+                show = stateValue > parsedCompareValue;
+                break;
+              case ">=":
+                show = stateValue >= parsedCompareValue;
+                break;
+              case "<":
+                show = stateValue < parsedCompareValue;
+                break;
+              case "<=":
+                show = stateValue <= parsedCompareValue;
+                break;
+              default:
+                console.error(`Unsupported operator: ${op}`);
+            }
+
+            el.style.display = show ? "" : "none";
+          } catch (error) {
+            console.error("Error evaluating g-show:", error);
           }
         }
       }
