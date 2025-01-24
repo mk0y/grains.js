@@ -1,6 +1,10 @@
 // Grains.js
 // A lightweight reactive micro-states management library for HTML
 
+import { scheduleUpdate } from "./batch";
+import { handleTextDirective } from "./directives/text";
+import { findClosestGrainElement, getValueAtPath } from "./utils";
+
 interface Grain {
   [key: string]: any;
 }
@@ -241,14 +245,13 @@ function setupEventListeners(el: GrainElement) {
 }
 
 function updateElement(el: GrainElement) {
-  // First update the element itself
-  updateElementContent(el);
+  // Schedule updates for the element and its children
+  scheduleUpdate(el, updateElementContent);
 
-  // Then update all child elements that have directives
   DIRECTIVES.forEach((directive) => {
     el.querySelectorAll(`[${directive}]`).forEach((child) => {
       if (child instanceof HTMLElement) {
-        updateElementContent(child);
+        scheduleUpdate(child, updateElementContent);
       }
     });
   });
@@ -260,12 +263,7 @@ function updateElementContent(el: HTMLElement) {
       const value = el.getAttribute(directive)!;
 
       if (directive === "g-text") {
-        const path = value.replace(/[{}]/g, "").trim();
-        const grainEl = findClosestGrainElement(el);
-        if (grainEl) {
-          const textValue = getValueAtPath(grainEl.$grain, path);
-          el.textContent = textValue !== undefined ? String(textValue) : "";
-        }
+        handleTextDirective(el, value);
       } else if (directive === "g-class") {
         updateClasses(el as GrainElement, value);
       } else if (directive === "g-disabled") {
@@ -327,17 +325,6 @@ function updateElementContent(el: HTMLElement) {
       }
     }
   });
-}
-
-function findClosestGrainElement(el: HTMLElement): GrainElement | null {
-  let current: HTMLElement | null = el;
-  while (current) {
-    if (current.hasAttribute("g-state")) {
-      return current as GrainElement;
-    }
-    current = current.parentElement;
-  }
-  return null;
 }
 
 function updateClasses(el: GrainElement, value: string) {
@@ -415,10 +402,6 @@ function callGrainFunction(
   // Handle both sync and async functions
   const result = updates ? func({ ...context }, updates) : func(context, args);
   return Promise.resolve(result);
-}
-
-function getValueAtPath(obj: any, path: string): any {
-  return path.split(".").reduce((o, i) => (o ? o[i] : undefined), obj);
 }
 
 function deepClone<T>(obj: T): T {
