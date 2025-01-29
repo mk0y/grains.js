@@ -1,9 +1,11 @@
 // Grains.js
 // A lightweight reactive micro-states management library for HTML
 
+import diff from "microdiff";
+import rfdc from "rfdc";
 import { scheduleUpdate } from "./batch";
 import { handleTextDirective } from "./directives/text";
-import { findClosestGrainElement, getValueAtPath } from "./utils";
+import { applyDiff, findClosestGrainElement, getValueAtPath } from "./utils";
 
 interface Grain {
   [key: string]: any;
@@ -37,6 +39,12 @@ declare global {
   }
 }
 
+const clone = rfdc();
+
+function deepClone<T>(obj: T): T {
+  return clone(obj);
+}
+
 const DIRECTIVES = [
   "g-state",
   "g-init",
@@ -68,7 +76,7 @@ function bootstrap() {
 }
 
 function setupGrain(el: GrainElement) {
-  const [stateName, funcName] = el.getAttribute("g-state")!.split(":");
+  const [stateName, _] = el.getAttribute("g-state")!.split(":");
   const initialState = el.hasAttribute("g-init")
     ? JSON.parse(el.getAttribute("g-init")!)
     : {};
@@ -76,22 +84,25 @@ function setupGrain(el: GrainElement) {
   // Initialize history
   grainHistory.set(stateName, { past: [], future: [] });
 
-  // Create reactive state
+  // Create reactive state with rfdc and microdiff
   const state = observe(initialState, () => {
-    // Save state to history before update
     const history = grainHistory.get(stateName)!;
-    const currentState = deepClone(el.$grain);
+    const currentState = deepClone(el.$grain); // Clone the current state
 
-    // Only save to history if state actually changed
-    if (JSON.stringify(currentState) !== JSON.stringify(state)) {
-      history.past.push(currentState);
-      if (history.past.length > MAX_HISTORY) {
-        history.past.shift();
-      }
-      history.future = [];
+    // Compute the diff and push it to history
+    const lastState =
+      history.past.length > 0
+        ? applyDiff({}, history.past[history.past.length - 1]) // Reconstruct the last state from diffs
+        : {};
+    const diffs = diff(lastState, currentState);
+
+    if (diffs.length > 0) {
+      history.past.push(diffs);
+      if (history.past.length > MAX_HISTORY) history.past.shift();
+      history.future = []; // Clear future on new changes
     }
 
-    updateElement(el);
+    updateElement(el); // Update the DOM
   });
 
   // Store the grain instance
@@ -105,46 +116,11 @@ function setupGrain(el: GrainElement) {
     delete window[stateName];
   };
 
-  // Expose grain state and debug info on window
-  window[stateName] = new Proxy(state, {
-    get(target: any, prop: string) {
-      if (prop === "_history") {
-        return grainHistory.get(stateName);
-      }
-      if (prop === "_debug") {
-        return {
-          element: el,
-          currentState: deepClone(target),
-          history: grainHistory.get(stateName),
-        };
-      }
-      return target[prop];
-    },
-    set(target: any, prop: string, value: any) {
-      const result = Reflect.set(target, prop, value);
-      updateElement(el);
-      return result;
-    },
-  });
+  // Expose state on the window
+  window[stateName] = state;
 
-  if (funcName) {
-    // Bind the function to update the state
-    el.$grain.$update = (updates: Grain) =>
-      callGrainFunction(el, funcName, updates);
-  }
-
-  // Store original attribute values
-  el.$originalValues = {};
-  DIRECTIVES.forEach((directive) => {
-    if (el.hasAttribute(directive)) {
-      el.$originalValues[directive] = el.getAttribute(directive)!;
-    }
-  });
-
-  // Setup event listeners
+  // Setup event listeners and initial update
   setupEventListeners(el);
-
-  // Initial update
   updateElement(el);
 }
 
@@ -402,10 +378,6 @@ function callGrainFunction(
   // Handle both sync and async functions
   const result = updates ? func({ ...context }, updates) : func(context, args);
   return Promise.resolve(result);
-}
-
-function deepClone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj));
 }
 
 export function observe<T extends object>(obj: T, callback: () => void): T {
