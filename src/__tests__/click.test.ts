@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { bootstrap } from "../app";
+import { bootstrap, GrainElement } from "../app";
 
 describe("g-click directive", () => {
   let container: HTMLElement;
@@ -125,23 +125,19 @@ describe("g-click directive", () => {
 
     bootstrap();
 
-    const stateElement = container.querySelector("[g-state]")!;
+    const stateElement = container.querySelector("[g-state]") as GrainElement;
     const button = container.querySelector("button")!;
 
-    // Store original event listeners count
-    const originalListenersCount = button.listenerCount?.("click") ?? 0;
+    // Click once to verify handler works
+    button.click();
+    expect(mockFn).toHaveBeenCalledTimes(1);
 
-    // Remove the element
+    // Remove the element and cleanup
     stateElement.remove();
-
-    // Trigger cleanup
     stateElement.$cleanup?.();
 
     // Click should not trigger the handler anymore
     button.click();
-    expect(mockFn).not.toHaveBeenCalled();
-
-    // Check that listeners were removed
-    expect(button.listenerCount?.("click") ?? 0).toBe(originalListenersCount);
+    expect(mockFn).toHaveBeenCalledTimes(1);
   });
 });

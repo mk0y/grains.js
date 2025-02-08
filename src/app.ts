@@ -1,11 +1,9 @@
 // Grains.js
 // A lightweight reactive micro-states management library for HTML
 
-import diff from "microdiff";
 import rfdc from "rfdc";
-import { scheduleUpdate } from "./batch";
 import { handleTextDirective } from "./directives/text";
-import { applyDiff, findClosestGrainElement, getValueAtPath } from "./utils";
+import { findClosestGrainElement, getValueAtPath } from "./utils";
 
 interface Grain {
   [key: string]: any;
@@ -75,34 +73,68 @@ function bootstrap() {
   });
 }
 
+export function observe<T extends object>(obj: T, callback: () => void): T {
+  const handler: ProxyHandler<T> = {
+    get(target: T, property: string | symbol): any {
+      const value = Reflect.get(target, property);
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        return observe(value, callback);
+      }
+      return value;
+    },
+
+    set(target: T, property: string | symbol, value: any): boolean {
+      const oldValue = Reflect.get(target, property);
+      const result = Reflect.set(target, property, value);
+
+      if (oldValue !== value) {
+        callback();
+      }
+
+      return result;
+    },
+
+    deleteProperty(target: T, property: string | symbol): boolean {
+      const hadProperty = property in target;
+      const result = Reflect.deleteProperty(target, property);
+
+      if (hadProperty) {
+        callback();
+      }
+
+      return result;
+    },
+  };
+
+  return new Proxy(obj, handler);
+}
+
 function setupGrain(el: GrainElement) {
   const [stateName, _] = el.getAttribute("g-state")!.split(":");
   const initialState = el.hasAttribute("g-init")
     ? JSON.parse(el.getAttribute("g-init")!)
     : {};
 
-  // Initialize history
-  grainHistory.set(stateName, { past: [], future: [] });
+  // Initialize history with initial state
+  grainHistory.set(stateName, {
+    past: [],
+    future: [],
+  });
+
+  // Store initial state before creating reactive proxy
+  el.$grain = deepClone(initialState);
+
+  // Update text content immediately with initial state
+  el.querySelectorAll("[g-text]").forEach((textEl) => {
+    if (textEl instanceof HTMLElement) {
+      handleTextDirective(textEl, textEl.getAttribute("g-text")!);
+    }
+  });
 
   // Create reactive state with rfdc and microdiff
   const state = observe(initialState, () => {
-    const history = grainHistory.get(stateName)!;
-    const currentState = deepClone(el.$grain); // Clone the current state
-
-    // Compute the diff and push it to history
-    const lastState =
-      history.past.length > 0
-        ? applyDiff({}, history.past[history.past.length - 1]) // Reconstruct the last state from diffs
-        : {};
-    const diffs = diff(lastState, currentState);
-
-    if (diffs.length > 0) {
-      history.past.push(diffs);
-      if (history.past.length > MAX_HISTORY) history.past.shift();
-      history.future = []; // Clear future on new changes
-    }
-
-    updateElement(el); // Update the DOM
+    // Schedule DOM updates
+    updateElement(el);
   });
 
   // Store the grain instance
@@ -119,9 +151,8 @@ function setupGrain(el: GrainElement) {
   // Expose state on the window
   window[stateName] = state;
 
-  // Setup event listeners and initial update
+  // Setup event listeners
   setupEventListeners(el);
-  updateElement(el);
 }
 
 function setupEventListeners(el: GrainElement) {
@@ -156,34 +187,24 @@ function setupEventListeners(el: GrainElement) {
       event.preventDefault();
       const action = actionEl.getAttribute("g-action")!;
       const grainEl = findClosestGrainElement(actionEl);
-      if (!grainEl) return;
 
-      const stateName = grainEl.getAttribute("g-state")!.split(":")[0];
-      const history = grainHistory.get(stateName)!;
+      if (grainEl) {
+        const stateName = grainEl.getAttribute("g-state")!.split(":")[0];
+        const history = grainHistory.get(stateName)!;
 
-      try {
-        switch (action) {
-          case "undo":
-            if (history.past.length > 0) {
-              const previousState = history.past.pop()!;
-              history.future.push(deepClone(grainEl.$grain));
-              Object.assign(grainEl.$grain, previousState);
-              updateElement(grainEl);
-            }
-            break;
-          case "redo":
-            if (history.future.length > 0) {
-              const nextState = history.future.pop()!;
-              history.past.push(deepClone(grainEl.$grain));
-              Object.assign(grainEl.$grain, nextState);
-              updateElement(grainEl);
-            }
-            break;
-          default:
-            console.warn(`Unknown action: ${action}`);
+        if (action === "undo" && history.past.length > 0) {
+          const currentState = deepClone(grainEl.$grain);
+          const previousState = history.past.pop()!;
+          history.future.push(currentState);
+          Object.assign(grainEl.$grain, previousState);
+          updateElement(grainEl);
+        } else if (action === "redo" && history.future.length > 0) {
+          const currentState = deepClone(grainEl.$grain);
+          const nextState = history.future.pop()!;
+          history.past.push(currentState);
+          Object.assign(grainEl.$grain, nextState);
+          updateElement(grainEl);
         }
-      } catch (error) {
-        console.error(`Error in action handler "${action}":`, error);
       }
     };
 
@@ -191,56 +212,59 @@ function setupEventListeners(el: GrainElement) {
     handlers.set(actionEl, handler);
   };
 
-  // Find and setup all click handlers
-  const clickElements = Array.from(
-    el.querySelectorAll("[g-click]")
-  ) as HTMLElement[];
-  clickElements.forEach(setupClickHandler);
-  if (el.hasAttribute("g-click")) {
-    setupClickHandler(el);
-  }
+  // Setup all click handlers
+  el.querySelectorAll("[g-click]").forEach((clickEl) => {
+    if (clickEl instanceof HTMLElement) {
+      setupClickHandler(clickEl);
+    }
+  });
 
-  // Find and setup all action handlers
-  const actionElements = Array.from(
-    el.querySelectorAll("[g-action]")
-  ) as HTMLElement[];
-  actionElements.forEach(setupActionHandler);
-  if (el.hasAttribute("g-action")) {
-    setupActionHandler(el);
-  }
+  // Setup all action handlers
+  el.querySelectorAll("[g-action]").forEach((actionEl) => {
+    if (actionEl instanceof HTMLElement) {
+      setupActionHandler(actionEl);
+    }
+  });
 
   // Store cleanup function
-  const originalCleanup = el.$cleanup || (() => {});
-  el.$cleanup = () => {
+  const cleanup = () => {
     handlers.forEach((handler, element) => {
       element.removeEventListener("click", handler);
     });
     handlers.clear();
-    originalCleanup();
   };
+
+  // Store cleanup function on element
+  el.$cleanup = cleanup;
 }
 
 function updateElement(el: GrainElement) {
-  // Schedule updates for the element and its children
-  scheduleUpdate(el, updateElementContent);
+  // Update the element itself first
+  updateElementContent(el);
 
+  // Then update all child elements with directives
   DIRECTIVES.forEach((directive) => {
     el.querySelectorAll(`[${directive}]`).forEach((child) => {
       if (child instanceof HTMLElement) {
-        scheduleUpdate(child, updateElementContent);
+        updateElementContent(child);
       }
     });
   });
 }
 
 function updateElementContent(el: HTMLElement) {
+  // Handle text directive first if present
+  if (el.hasAttribute("g-text")) {
+    handleTextDirective(el, el.getAttribute("g-text")!);
+    return;
+  }
+
+  // Handle other directives
   DIRECTIVES.forEach((directive) => {
-    if (el.hasAttribute(directive)) {
+    if (directive !== "g-text" && el.hasAttribute(directive)) {
       const value = el.getAttribute(directive)!;
 
-      if (directive === "g-text") {
-        handleTextDirective(el, value);
-      } else if (directive === "g-class") {
+      if (directive === "g-class") {
         updateClasses(el as GrainElement, value);
       } else if (directive === "g-disabled") {
         const grainEl = findClosestGrainElement(el);
@@ -345,28 +369,31 @@ function callGrainFunction(
     set: (updates: Partial<Grain>) => {
       const newState = { ...deepClone(el.$grain), ...updates };
       if (JSON.stringify(newState) !== JSON.stringify(el.$grain)) {
-        history.past.push(deepClone(el.$grain));
+        const currentState = deepClone(el.$grain);
+        Object.assign(el.$grain, newState);
+        history.past.push(currentState);
         if (history.past.length > MAX_HISTORY) {
           history.past.shift();
         }
         history.future = [];
-        Object.assign(el.$grain, newState);
         updateElement(el);
       }
     },
     getState: () => deepClone(el.$grain),
     undo: () => {
       if (history.past.length > 0) {
+        const currentState = deepClone(el.$grain);
         const previousState = history.past.pop()!;
-        history.future.push(deepClone(el.$grain));
+        history.future.push(currentState);
         Object.assign(el.$grain, previousState);
         updateElement(el);
       }
     },
     redo: () => {
       if (history.future.length > 0) {
+        const currentState = deepClone(el.$grain);
         const nextState = history.future.pop()!;
-        history.past.push(deepClone(el.$grain));
+        history.past.push(currentState);
         Object.assign(el.$grain, nextState);
         updateElement(el);
       }
@@ -376,32 +403,8 @@ function callGrainFunction(
   };
 
   // Handle both sync and async functions
-  const result = updates ? func({ ...context }, updates) : func(context, args);
+  const result = updates ? func(context, updates) : func(context, args);
   return Promise.resolve(result);
-}
-
-export function observe<T extends object>(obj: T, callback: () => void): T {
-  const handler: ProxyHandler<T> = {
-    get(target: T, property: string | symbol): any {
-      const value = Reflect.get(target, property);
-      if (value && typeof value === "object") {
-        return observe(value, callback);
-      }
-      return value;
-    },
-    set(target: T, property: string | symbol, value: any): boolean {
-      const result = Reflect.set(target, property, value);
-      callback();
-      return result;
-    },
-    deleteProperty(target: T, property: string | symbol): boolean {
-      const result = Reflect.deleteProperty(target, property);
-      callback();
-      return result;
-    },
-  };
-
-  return new Proxy(obj, handler);
 }
 
 // Initialize on DOM ready and export for testing
