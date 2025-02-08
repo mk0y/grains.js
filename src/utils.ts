@@ -1,5 +1,12 @@
 import diff from "microdiff";
+import rfdc from "rfdc";
 import type { GrainElement } from "./app";
+
+const clone = rfdc();
+
+export function deepClone<T>(obj: T): T {
+  return clone(obj);
+}
 
 export function findClosestGrainElement(el: HTMLElement): GrainElement | null {
   let current: HTMLElement | null = el;
@@ -18,7 +25,7 @@ export function getValueAtPath(obj: any, path: string): any {
 
 export function applyDiff(
   target: Record<string, any>,
-  diffs: ReturnType<typeof diff>
+  diffs: ReturnType<typeof diff>,
 ): Record<string, any> {
   diffs.forEach((diff) => {
     let current = target;

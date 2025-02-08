@@ -1,4 +1,7 @@
-import { GrainElement, ElementCache, updateElementContent } from "./app";
+// src/batcher.ts
+import { ElementCache } from "./cache";
+import { GrainElement } from "./types";
+import { updateElementContent } from "./directives/base";
 
 class UpdateBatcher {
   private static pendingUpdates = new Set<GrainElement>();
@@ -41,6 +44,10 @@ class UpdateBatcher {
 
     this.pendingUpdates.delete(el);
   }
+}
+
+export function updateElement(el: GrainElement) {
+  UpdateBatcher.scheduleUpdate(el);
 }
 
 export default UpdateBatcher;
