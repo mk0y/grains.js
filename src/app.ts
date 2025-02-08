@@ -2,6 +2,7 @@
 // A lightweight reactive micro-states management library for HTML
 
 import rfdc from "rfdc";
+import { handleShowDirective } from "./directives/show";
 import { handleTextDirective } from "./directives/text";
 import { findClosestGrainElement, getValueAtPath } from "./utils";
 
@@ -124,10 +125,16 @@ function setupGrain(el: GrainElement) {
   // Store initial state before creating reactive proxy
   el.$grain = deepClone(initialState);
 
-  // Update text content immediately with initial state
-  el.querySelectorAll("[g-text]").forEach((textEl) => {
-    if (textEl instanceof HTMLElement) {
-      handleTextDirective(textEl, textEl.getAttribute("g-text")!);
+  // Update content immediately with initial state using a single query
+  const selector = "[g-text], [g-show]";
+  el.querySelectorAll(selector).forEach((element) => {
+    if (element instanceof HTMLElement) {
+      if (element.hasAttribute("g-text")) {
+        handleTextDirective(element, element.getAttribute("g-text")!);
+      }
+      if (element.hasAttribute("g-show")) {
+        handleShowDirective(element, element.getAttribute("g-show")!);
+      }
     }
   });
 
@@ -280,48 +287,7 @@ function updateElementContent(el: HTMLElement) {
           }
         }
       } else if (directive === "g-show") {
-        const grainEl = findClosestGrainElement(el);
-        if (grainEl) {
-          try {
-            const [prop, op, compareValue] = value.split(/\s+/);
-            const stateValue = getValueAtPath(grainEl.$grain, prop);
-            const parsedCompareValue = JSON.parse(compareValue);
-            let show = false;
-
-            switch (op) {
-              case "==":
-                show = stateValue == parsedCompareValue;
-                break;
-              case "===":
-                show = stateValue === parsedCompareValue;
-                break;
-              case "!=":
-                show = stateValue != parsedCompareValue;
-                break;
-              case "!==":
-                show = stateValue !== parsedCompareValue;
-                break;
-              case ">":
-                show = stateValue > parsedCompareValue;
-                break;
-              case ">=":
-                show = stateValue >= parsedCompareValue;
-                break;
-              case "<":
-                show = stateValue < parsedCompareValue;
-                break;
-              case "<=":
-                show = stateValue <= parsedCompareValue;
-                break;
-              default:
-                console.error(`Unsupported operator: ${op}`);
-            }
-
-            el.style.display = show ? "" : "none";
-          } catch (error) {
-            console.error("Error evaluating g-show:", error);
-          }
-        }
+        handleShowDirective(el, value);
       }
     }
   });
