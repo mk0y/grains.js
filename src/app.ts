@@ -5,7 +5,9 @@ import rfdc from "rfdc";
 import { handleShowDirective } from "./directives/show";
 import { handleTextDirective } from "./directives/text";
 import { findClosestGrainElement, getValueAtPath } from "./utils";
+import UpdateBatcher from "./batcher";
 
+// Types
 interface Grain {
   [key: string]: any;
 }
@@ -31,18 +33,20 @@ type GrainContext = {
   canRedo: () => boolean;
 };
 
-// Extend Window interface to allow dynamic properties
 declare global {
   interface Window {
     [key: string]: any;
   }
 }
 
+// Constants
 const clone = rfdc();
-
-function deepClone<T>(obj: T): T {
-  return clone(obj);
-}
+const DIRECTIVE_SELECTORS = {
+  STATE: "[g-state]",
+  INTERACTIVE: "[g-click], [g-action]",
+  DYNAMIC: "[g-text], [g-show], [g-class], [g-disabled]",
+  ALL: "[g-state], [g-click], [g-action], [g-text], [g-show], [g-class], [g-disabled]",
+};
 
 const DIRECTIVES = [
   "g-state",
@@ -56,25 +60,99 @@ const DIRECTIVES = [
   "g-show",
 ] as const;
 
-// Store for all grain instances and their history
-const grainStore = new Map<string, Grain>();
-const grainHistory = new Map<string, GrainHistory>();
-
-// Maximum number of history states to keep
 const MAX_HISTORY = 50;
 
-function bootstrap() {
-  // Clean up existing grains
-  grainStore.clear();
-  grainHistory.clear();
+// Store
+class GrainStore {
+  private grains = new Map<string, Grain>();
+  private history = new Map<string, GrainHistory>();
 
-  // Find all elements with g-state attribute and set them up
-  document.querySelectorAll<HTMLElement>("[g-state]").forEach((el) => {
-    setupGrain(el as GrainElement);
-  });
+  clear() {
+    this.grains.clear();
+    this.history.clear();
+  }
+
+  set(name: string, grain: Grain) {
+    this.grains.set(name, grain);
+  }
+
+  get(name: string) {
+    return this.grains.get(name);
+  }
+
+  delete(name: string) {
+    this.grains.delete(name);
+    this.history.delete(name);
+  }
+
+  getHistory(name: string) {
+    return this.history.get(name);
+  }
+
+  initHistory(name: string) {
+    this.history.set(name, { past: [], future: [] });
+  }
 }
 
-export function observe<T extends object>(obj: T, callback: () => void): T {
+const store = new GrainStore();
+
+// Cache
+export class ElementCache {
+  private static cache = new WeakMap<
+    HTMLElement,
+    {
+      textElements: HTMLElement[];
+      showElements: HTMLElement[];
+      interactiveElements: HTMLElement[];
+      allElements: HTMLElement[];
+    }
+  >();
+
+  static cacheElements(rootEl: HTMLElement) {
+    const cached = {
+      textElements: Array.from(
+        rootEl.querySelectorAll<HTMLElement>("[g-text]"),
+      ),
+      showElements: Array.from(
+        rootEl.querySelectorAll<HTMLElement>("[g-show]"),
+      ),
+      interactiveElements: Array.from(
+        rootEl.querySelectorAll<HTMLElement>(DIRECTIVE_SELECTORS.INTERACTIVE),
+      ),
+      allElements: Array.from(
+        rootEl.querySelectorAll<HTMLElement>(DIRECTIVE_SELECTORS.ALL),
+      ),
+    };
+
+    this.cache.set(rootEl, cached);
+    return cached;
+  }
+
+  static getCache(rootEl: HTMLElement) {
+    return this.cache.get(rootEl);
+  }
+
+  static clearCache(rootEl: HTMLElement) {
+    this.cache.delete(rootEl);
+  }
+}
+
+function deepClone<T>(obj: T): T {
+  return clone(obj);
+}
+
+function bootstrap() {
+  store.clear();
+
+  const grainElements = document.querySelectorAll<HTMLElement>(
+    DIRECTIVE_SELECTORS.STATE,
+  );
+  for (const el of grainElements) {
+    setupGrain(el as GrainElement);
+  }
+}
+
+function observe<T extends object>(obj: T, callback: () => void): T {
   const handler: ProxyHandler<T> = {
     get(target: T, property: string | symbol): any {
       const value = Reflect.get(target, property);
@@ -89,7 +167,7 @@ export function observe<T extends object>(obj: T, callback: () => void): T {
       const result = Reflect.set(target, property, value);
 
       if (oldValue !== value) {
-        callback();
+        requestAnimationFrame(() => callback());
       }
 
       return result;
@@ -100,7 +178,7 @@ export function observe<T extends object>(obj: T, callback: () => void): T {
       const result = Reflect.deleteProperty(target, property);
 
       if (hadProperty) {
-        callback();
+        requestAnimationFrame(() => callback());
       }
 
       return result;
@@ -116,18 +194,12 @@ function setupGrain(el: GrainElement) {
     ? JSON.parse(el.getAttribute("g-init")!)
     : {};
 
-  // Initialize history with initial state
-  grainHistory.set(stateName, {
-    past: [],
-    future: [],
-  });
-
-  // Store initial state before creating reactive proxy
+  store.initHistory(stateName);
   el.$grain = deepClone(initialState);
 
-  // Update content immediately with initial state using a single query
-  const selector = "[g-text], [g-show]";
-  el.querySelectorAll(selector).forEach((element) => {
+  const cache = ElementCache.cacheElements(el);
+
+  for (const element of cache.allElements) {
     if (element instanceof HTMLElement) {
       if (element.hasAttribute("g-text")) {
         handleTextDirective(element, element.getAttribute("g-text")!);
@@ -136,36 +208,29 @@ function setupGrain(el: GrainElement) {
         handleShowDirective(element, element.getAttribute("g-show")!);
       }
     }
-  });
+  }
 
-  // Create reactive state with rfdc and microdiff
   const state = observe(initialState, () => {
-    // Schedule DOM updates
-    updateElement(el);
+    UpdateBatcher.scheduleUpdate(el);
   });
 
-  // Store the grain instance
-  grainStore.set(stateName, state);
+  store.set(stateName, state);
   el.$grain = state;
 
-  // Create cleanup function
   el.$cleanup = () => {
-    grainStore.delete(stateName);
-    grainHistory.delete(stateName);
+    store.delete(stateName);
+    ElementCache.clearCache(el);
     delete window[stateName];
   };
 
-  // Expose state on the window
   window[stateName] = state;
-
-  // Setup event listeners
   setupEventListeners(el);
 }
 
 function setupEventListeners(el: GrainElement) {
   const handlers = new Map<HTMLElement, (event: Event) => void>();
+  const cache = ElementCache.getCache(el) || ElementCache.cacheElements(el);
 
-  // Setup click handlers
   const setupClickHandler = (clickEl: HTMLElement) => {
     const handler = async (event: Event) => {
       event.preventDefault();
@@ -188,7 +253,6 @@ function setupEventListeners(el: GrainElement) {
     handlers.set(clickEl, handler);
   };
 
-  // Setup action handlers
   const setupActionHandler = (actionEl: HTMLElement) => {
     const handler = async (event: Event) => {
       event.preventDefault();
@@ -197,7 +261,7 @@ function setupEventListeners(el: GrainElement) {
 
       if (grainEl) {
         const stateName = grainEl.getAttribute("g-state")!.split(":")[0];
-        const history = grainHistory.get(stateName)!;
+        const history = store.getHistory(stateName)!;
 
         if (action === "undo" && history.past.length > 0) {
           const currentState = deepClone(grainEl.$grain);
@@ -219,21 +283,15 @@ function setupEventListeners(el: GrainElement) {
     handlers.set(actionEl, handler);
   };
 
-  // Setup all click handlers
-  el.querySelectorAll("[g-click]").forEach((clickEl) => {
-    if (clickEl instanceof HTMLElement) {
-      setupClickHandler(clickEl);
+  for (const element of cache.interactiveElements) {
+    if (element.hasAttribute("g-click")) {
+      setupClickHandler(element);
     }
-  });
-
-  // Setup all action handlers
-  el.querySelectorAll("[g-action]").forEach((actionEl) => {
-    if (actionEl instanceof HTMLElement) {
-      setupActionHandler(actionEl);
+    if (element.hasAttribute("g-action")) {
+      setupActionHandler(element);
     }
-  });
+  }
 
-  // Store cleanup function
   const cleanup = () => {
     handlers.forEach((handler, element) => {
       element.removeEventListener("click", handler);
@@ -241,33 +299,20 @@ function setupEventListeners(el: GrainElement) {
     handlers.clear();
   };
 
-  // Store cleanup function on element
   el.$cleanup = cleanup;
 }
 
 function updateElement(el: GrainElement) {
-  // Update the element itself first
-  updateElementContent(el);
-
-  // Then update all child elements with directives
-  DIRECTIVES.forEach((directive) => {
-    el.querySelectorAll(`[${directive}]`).forEach((child) => {
-      if (child instanceof HTMLElement) {
-        updateElementContent(child);
-      }
-    });
-  });
+  UpdateBatcher.scheduleUpdate(el);
 }
 
-function updateElementContent(el: HTMLElement) {
-  // Handle text directive first if present
+export function updateElementContent(el: HTMLElement) {
   if (el.hasAttribute("g-text")) {
     handleTextDirective(el, el.getAttribute("g-text")!);
     return;
   }
 
-  // Handle other directives
-  DIRECTIVES.forEach((directive) => {
+  for (const directive of DIRECTIVES) {
     if (directive !== "g-text" && el.hasAttribute(directive)) {
       const value = el.getAttribute(directive)!;
 
@@ -279,7 +324,7 @@ function updateElementContent(el: HTMLElement) {
           const action = el.getAttribute("g-action");
           if (action === "undo" || action === "redo") {
             const stateName = grainEl.getAttribute("g-state")!.split(":")[0];
-            const history = grainHistory.get(stateName)!;
+            const history = store.getHistory(stateName)!;
             el.disabled =
               action === "undo"
                 ? history.past.length === 0
@@ -290,7 +335,7 @@ function updateElementContent(el: HTMLElement) {
         handleShowDirective(el, value);
       }
     }
-  });
+  }
 }
 
 function updateClasses(el: GrainElement, value: string) {
@@ -301,9 +346,9 @@ function updateClasses(el: GrainElement, value: string) {
     if (typeof result === "string") {
       el.className = result;
     } else if (typeof result === "object") {
-      Object.entries(result).forEach(([className, active]) => {
+      for (const [className, active] of Object.entries(result)) {
         el.classList.toggle(className, !!active);
-      });
+      }
     }
   } catch (error) {
     console.error("Error updating classes:", error);
@@ -312,7 +357,7 @@ function updateClasses(el: GrainElement, value: string) {
 
 function resolvePlaceholders(el: GrainElement, str: string): string {
   return str.replace(/\{([^}]+)\}/g, (_, path) =>
-    JSON.stringify(getValueAtPath(el.$grain, path))
+    JSON.stringify(getValueAtPath(el.$grain, path)),
   );
 }
 
@@ -320,7 +365,7 @@ function callGrainFunction(
   el: GrainElement,
   funcName: string,
   updates?: Grain,
-  args: any[] = []
+  args: any[] = [],
 ): Promise<void> {
   const func = window[funcName];
   if (typeof func !== "function") {
@@ -328,7 +373,7 @@ function callGrainFunction(
   }
 
   const stateName = el.getAttribute("g-state")!.split(":")[0];
-  const history = grainHistory.get(stateName)!;
+  const history = store.getHistory(stateName)!;
 
   const context: GrainContext = {
     get: (path: string) => getValueAtPath(el.$grain, path),
@@ -342,7 +387,7 @@ function callGrainFunction(
           history.past.shift();
         }
         history.future = [];
-        updateElement(el);
+        UpdateBatcher.scheduleUpdate(el);
       }
     },
     getState: () => deepClone(el.$grain),
@@ -368,17 +413,15 @@ function callGrainFunction(
     canRedo: () => history.future.length > 0,
   };
 
-  // Handle both sync and async functions
   const result = updates ? func(context, updates) : func(context, args);
   return Promise.resolve(result);
 }
 
-// Initialize on DOM ready and export for testing
 window.addEventListener("DOMContentLoaded", bootstrap);
 export {
   bootstrap,
   findClosestGrainElement,
-  grainStore,
+  store as grainStore,
   setupGrain,
   updateElement,
 };
