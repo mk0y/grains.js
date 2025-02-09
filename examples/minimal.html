@@ -36,7 +36,10 @@
         Disabled when: (isNegative('count') && count < -1) || count === 3
       </button>
 
-      <div g-show="count > 5">Count is greater than 5!</div>
+      <div g-show="count > 1">Count is greater than 1!</div>
+      <div g-show="count > 2 && score <= 3">
+        Count is greater than 1 and score is <= 3!
+      </div>
       <div g-show="count == 0">Count is zero</div>
       <div g-show="count < 0">Count is negative</div>
     </div>
