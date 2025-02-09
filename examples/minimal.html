@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Minimal Grains.js Example</title>
@@ -12,12 +12,29 @@
     </style>
   </head>
   <body>
-    <div g-state="counter" g-init='{"count": 0}'>
-      <h1>Count: <span g-text="count"></span></h1>
+    <div g-state="counter" g-init='{"count": 0, "score": 3}'>
+      <h1>
+        Count: <span g-text="count"></span> Score:<span g-text="score"></span>
+      </h1>
       <button g-click="increment">+1</button>
       <button g-click="decrement">-1</button>
       <button g-action="undo" g-disabled="!canUndo">Undo</button>
       <button g-action="redo" g-disabled="!canRedo">Redo</button>
+      <button g-disabled="!isPositive('count')">Is Positive</button>
+      <button g-disabled="!isNegative('count')">Is Negative</button>
+      <button g-disabled="!equals('count', 0)">equals('count', 0)</button>
+      <button g-disabled="isPositive('count') && score < 5">
+        Disabled when: isPositive('count') && score < 5
+      </button>
+      <button g-disabled="!isPositive('count') && score == 3">
+        Disabled when: !isPositive('count') && score == 3
+      </button>
+      <button g-disabled="isPositive('count') || score < 0">
+        Disabled when: isPositive('count') || score < 0
+      </button>
+      <button g-disabled="(isNegative('count') && count < -1) || count === 3">
+        Disabled when: (isNegative('count') && count < -1) || count === 3
+      </button>
 
       <div g-show="count > 5">Count is greater than 5!</div>
       <div g-show="count == 0">Count is zero</div>

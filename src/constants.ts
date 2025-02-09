@@ -1,4 +1,4 @@
-// Constants
+// src/constants.ts
 export const DIRECTIVE_SELECTORS = {
   STATE: "[g-state]",
   INTERACTIVE: "[g-click], [g-action]",

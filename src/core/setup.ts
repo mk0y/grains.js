@@ -3,9 +3,7 @@ import { GrainElement } from "../types";
 import { store } from "../store";
 import { deepClone } from "../utils";
 import { ElementCache } from "../cache";
-import { handleTextDirective } from "../directives/text";
-import { handleShowDirective } from "../directives/show";
-import { updateDisabledState } from "../directives/disabled";
+import { updateElementContent } from "../directives/base";
 import UpdateBatcher from "../batcher";
 import { setupEventListeners } from "./events";
 import { observe } from "./observe";
@@ -16,29 +14,26 @@ export function setupGrain(el: GrainElement) {
     ? JSON.parse(el.getAttribute("g-init")!)
     : {};
 
+  // Initialize state and history
   store.initHistory(stateName);
   el.$grain = deepClone(initialState);
 
+  // Cache elements and perform initial update
   const cache = ElementCache.cacheElements(el);
 
+  // Single pass through elements using unified directive handler
   for (const element of cache.allElements) {
     if (element instanceof HTMLElement) {
-      if (element.hasAttribute("g-text")) {
-        handleTextDirective(element, element.getAttribute("g-text")!);
-      }
-      if (element.hasAttribute("g-show")) {
-        handleShowDirective(element, element.getAttribute("g-show")!);
-      }
-      if (element.hasAttribute("g-disabled")) {
-        updateDisabledState(el, stateName);
-      }
+      updateElementContent(element);
     }
   }
 
+  // Setup reactive state
   const state = observe(initialState, () => {
     UpdateBatcher.scheduleUpdate(el);
   });
 
+  // Store state and setup cleanup
   store.set(stateName, state);
   el.$grain = state;
 

@@ -1,14 +1,11 @@
-import { store } from "../store";
+// src/directives/disabled.ts
+import { evaluateExpression } from "../core/expressions";
 
-export function updateDisabledState(el: HTMLElement, stateName: string) {
+export function handleDisabledDirective(
+  el: HTMLElement,
+  expression: string,
+): void {
   if (el instanceof HTMLButtonElement) {
-    const action = el.getAttribute("g-action");
-    if (action === "undo" || action === "redo") {
-      const history = store.getHistory(stateName)!;
-      el.disabled =
-        action === "undo"
-          ? history.past.length === 0
-          : history.future.length === 0;
-    }
+    el.disabled = evaluateExpression(el, expression);
   }
 }

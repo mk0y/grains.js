@@ -1,34 +1,28 @@
+// src/directives/base.ts
 import { handleTextDirective } from "./text";
 import { handleShowDirective } from "./show";
-import { updateDisabledState } from "./disabled";
+import { handleDisabledDirective } from "./disabled";
+import { handleClassDirective } from "./class";
 import { DIRECTIVES } from "../constants";
-import { GrainElement } from "../types";
-import { findClosestGrainElement } from "../utils";
-import { updateClasses } from "./class";
+import { DirectiveHandler } from "../types";
+
+// Map of directive names to their handlers
+const directiveHandlers: Record<string, DirectiveHandler> = {
+  "g-text": handleTextDirective,
+  "g-show": handleShowDirective,
+  "g-disabled": handleDisabledDirective,
+  "g-class": handleClassDirective,
+};
 
 export function updateElementContent(el: HTMLElement) {
-  if (el.hasAttribute("g-text")) {
-    handleTextDirective(el, el.getAttribute("g-text")!);
-    return;
-  }
-
+  // Process directives in order of priority
   for (const directive of DIRECTIVES) {
-    if (directive !== "g-text" && el.hasAttribute(directive)) {
+    if (el.hasAttribute(directive)) {
       const value = el.getAttribute(directive)!;
+      const handler = directiveHandlers[directive];
 
-      if (directive === "g-class") {
-        updateClasses(el as GrainElement, value);
-      } else if (directive === "g-disabled") {
-        const grainEl = findClosestGrainElement(el);
-        if (grainEl && el instanceof HTMLButtonElement) {
-          const action = el.getAttribute("g-action");
-          if (action === "undo" || action === "redo") {
-            const stateName = grainEl.getAttribute("g-state")!.split(":")[0];
-            updateDisabledState(el, stateName);
-          }
-        }
-      } else if (directive === "g-show") {
-        handleShowDirective(el, value);
+      if (handler) {
+        handler(el, value);
       }
     }
   }

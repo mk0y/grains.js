@@ -1,4 +1,4 @@
-// Types
+// src/types.ts
 export interface Grain {
   [key: string]: any;
 }
@@ -23,3 +23,5 @@ export type GrainContext = {
   canUndo: () => boolean;
   canRedo: () => boolean;
 };
+
+export type DirectiveHandler = (el: HTMLElement, value: string) => void;
