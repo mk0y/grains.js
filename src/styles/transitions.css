@@ -1,0 +1,47 @@
+/* src/styles/transitions.css */
+
+[g-transition] {
+  transition: all 300ms ease;
+}
+
+/* Fade transition */
+.fade-in {
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+}
+
+/* Slide transition */
+.slide-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slide-out {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+/* Scale transition */
+.scale-in {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scale-out {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Slide-fade transition */
+.slide-fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide-fade-out {
+  opacity: 0;
+  transform: translateY(-20px);
+}

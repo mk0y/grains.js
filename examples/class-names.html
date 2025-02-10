@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Minimal Grains.js Example</title>
-    <script src="../dist/grains.min.js"></script>
+    <script src="../dist/grains.js"></script>
     <!-- <script src="https://cdn.tailwindcss.com"></script> -->
     <style>
       button:disabled {
@@ -18,5 +18,12 @@
       <div g-show="language === 'en'">English</div>
       <div g-show="language === 'es'">Spanish</div>
     </div>
+
+    <script>
+      function setLanguage(ctx, args) {
+        const [lang] = args;
+        ctx.set({ language: lang });
+      }
+    </script>
   </body>
 </html>

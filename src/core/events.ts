@@ -3,34 +3,13 @@ import { GrainElement } from "../types";
 import { ElementCache } from "../cache";
 import { store } from "../store";
 import { deepClone, findClosestGrainElement } from "../utils";
-import { callGrainFunction } from "./function";
 import { updateElement } from "../batcher";
+import { EVENT_TYPES } from "../constants";
 
 export function setupEventListeners(el: GrainElement) {
   const handlers = new Map<HTMLElement, (event: Event) => void>();
   const cache = ElementCache.getCache(el) || ElementCache.cacheElements(el);
-
-  const setupClickHandler = (clickEl: HTMLElement) => {
-    const handler = async (event: Event) => {
-      event.preventDefault();
-      const funcName = clickEl.getAttribute("g-click")!;
-      const args = clickEl.hasAttribute("g-args")
-        ? JSON.parse(clickEl.getAttribute("g-args")!)
-        : [];
-
-      try {
-        const grainEl = findClosestGrainElement(clickEl);
-        if (grainEl) {
-          await callGrainFunction(grainEl, funcName, undefined, args);
-        }
-      } catch (error) {
-        console.error(`Error in click handler "${funcName}":`, error);
-      }
-    };
-
-    clickEl.addEventListener("click", handler);
-    handlers.set(clickEl, handler);
-  };
+  console.log({ cache });
 
   const setupActionHandler = (actionEl: HTMLElement) => {
     const handler = async (event: Event) => {
@@ -62,13 +41,55 @@ export function setupEventListeners(el: GrainElement) {
     handlers.set(actionEl, handler);
   };
 
+  const setupOnHandler = (element: HTMLElement) => {
+    EVENT_TYPES.forEach((eventType) => {
+      const attribute = `g-on:${eventType}`;
+      if (element.hasAttribute(attribute)) {
+        const handlerExpression = element.getAttribute(attribute)!;
+        const handler = async (event: Event) => {
+          event.preventDefault();
+          const match = handlerExpression.match(/^(\w+)(?:\((.*)\))?$/);
+          if (!match) return;
+
+          const [, functionName, argsString] = match;
+          const func = window[functionName];
+          if (typeof func !== "function") return;
+
+          let args: any[] = [];
+          if (argsString) {
+            args = argsString.split(",").map((arg) => {
+              arg = arg.trim();
+              return arg.startsWith("'") && arg.endsWith("'")
+                ? arg.slice(1, -1)
+                : arg;
+            });
+          }
+
+          const grainEl = findClosestGrainElement(element);
+          if (!grainEl) return;
+
+          const context = {
+            get: () => grainEl.$grain,
+            set: (updates: any) => {
+              Object.assign(grainEl.$grain, updates);
+              updateElement(grainEl);
+            },
+          };
+
+          await func(context, args);
+        };
+
+        element.addEventListener(eventType, handler);
+        handlers.set(element, handler);
+      }
+    });
+  };
+
   for (const element of cache.interactiveElements) {
-    if (element.hasAttribute("g-click")) {
-      setupClickHandler(element);
-    }
     if (element.hasAttribute("g-action")) {
       setupActionHandler(element);
     }
+    setupOnHandler(element);
   }
 
   const cleanup = () => {

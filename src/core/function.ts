@@ -11,17 +11,33 @@ export function callGrainFunction(
   updates?: Grain,
   args: any[] = [],
 ): Promise<void> {
+  console.log("callGrainFunction called:", { funcName, updates, args });
+
+  // Get the function
   const func = window[funcName];
+  console.log("Found function:", { exists: !!func, type: typeof func });
+
   if (typeof func !== "function") {
+    console.error(`Function '${funcName}' not found on window object`);
+    console.log(
+      "Available window functions:",
+      Object.keys(window).filter((key) => typeof window[key] === "function"),
+    );
     throw new Error(`Function '${funcName}' not defined`);
   }
 
   const stateName = el.getAttribute("g-state")!.split(":")[0];
   const history = store.getHistory(stateName)!;
 
+  // Create the context
   const context: GrainContext = {
-    get: (path: string) => getValueAtPath(el.$grain, path),
+    get: (path?: string) => {
+      const state = path ? getValueAtPath(el.$grain, path) : el.$grain;
+      console.log("Context get:", { path, state });
+      return state;
+    },
     set: (updates: Partial<Grain>) => {
+      console.log("Context set:", { updates });
       const newState = { ...deepClone(el.$grain), ...updates };
       if (JSON.stringify(newState) !== JSON.stringify(el.$grain)) {
         const currentState = deepClone(el.$grain);
@@ -34,6 +50,7 @@ export function callGrainFunction(
         UpdateBatcher.scheduleUpdate(el);
       }
     },
+    // ... rest of the context methods
     getState: () => deepClone(el.$grain),
     undo: () => {
       if (history.past.length > 0) {
@@ -57,6 +74,16 @@ export function callGrainFunction(
     canRedo: () => history.future.length > 0,
   };
 
-  const result = updates ? func(context, updates) : func(context, args);
-  return Promise.resolve(result);
+  try {
+    console.log("Executing function with:", {
+      context,
+      updates: updates || args,
+    });
+
+    const result = updates ? func(context, updates) : func(context, args);
+    return Promise.resolve(result);
+  } catch (error) {
+    console.error("Error executing function:", error);
+    throw error;
+  }
 }

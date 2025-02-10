@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Grains.js Transitions Example</title>
+    <script src="../dist/grains.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="p-8">
+    <div
+      g-state="dropdown"
+      g-init='{"isOpen": false, "selected": "Select an option"}'
+    >
+      <!-- Trigger Button -->
+      <button
+        class="px-4 py-2 bg-white border rounded-lg shadow-sm hover:border-blue-500 focus:outline-none"
+        g-on:click="toggle"
+      >
+        <span g-text="selected"></span>
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div
+        class="absolute mt-1 w-48 bg-white rounded-lg shadow-lg overflow-hidden"
+        g-show="isOpen"
+        g-transition="fade"
+      >
+        <div
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          g-on:click="select('Option 1')"
+        >
+          Option 1
+        </div>
+        <div
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          g-on:click="select('Option 2')"
+        >
+          Option 2
+        </div>
+      </div>
+    </div>
+    <p>Dev</p>
+
+    <script>
+      // Define functions in global scope
+      toggle = function (ctx) {
+        console.log("Toggle called"); // Debug log
+        ctx.set({ isOpen: !ctx.get().isOpen });
+      };
+
+      select = function (ctx, args) {
+        const [option] = args;
+        console.log("Select called with option:", option); // Debug log
+        ctx.set({
+          selected: option,
+          isOpen: false,
+        });
+      };
+    </script>
+  </body>
+</html>
