@@ -19,9 +19,7 @@ export async function initializeState<T>(
       const parsed = JSON.parse(initValue);
       return { success: true, value: parsed };
     } catch (_) {
-      console.log({ _ });
       // If JSON parsing fails, try to get from window
-      console.log(window[initValue], { initValue });
       if (window[initValue] === undefined) {
         return { success: false };
       }

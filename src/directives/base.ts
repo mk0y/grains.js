@@ -4,9 +4,9 @@ import { handleShowDirective } from "./show";
 import { handleDisabledDirective } from "./disabled";
 import { handleClassDirective } from "./class";
 import { handleOnDirective } from "./on";
-import { handleTransitionDirective } from "./transition";
 import { DIRECTIVES } from "../utils/constants";
 import { DirectiveHandler } from "../types";
+import { handleAttrDirective } from "./attr";
 
 // Map of directive names to their handlers
 const directiveHandlers: Record<string, DirectiveHandler> = {
@@ -15,7 +15,7 @@ const directiveHandlers: Record<string, DirectiveHandler> = {
   "g-disabled": handleDisabledDirective,
   "g-class": handleClassDirective,
   "g-on": handleOnDirective,
-  "g-transition": handleTransitionDirective,
+  "g-attr": handleAttrDirective,
 };
 
 export function updateElementContent(el: HTMLElement) {

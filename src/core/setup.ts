@@ -12,12 +12,10 @@ import { initializeState } from "../utils/initialization";
 export async function setupGrain(el: GrainElement) {
   const [stateName, _] = el.getAttribute("g-state")!.split(":");
   const gInit = el.getAttribute("g-init");
-  console.log(gInit);
   let initialState = {};
 
   if (gInit) {
     const result = await initializeState(gInit);
-    console.log({ result });
 
     if (!result.success) {
       console.error(result.error || "Failed to initialize state");

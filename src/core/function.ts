@@ -11,12 +11,8 @@ export function callGrainFunction(
   updates?: Grain,
   args: any[] = [],
 ): Promise<void> {
-  console.log("callGrainFunction called:", { funcName, updates, args });
-
   // Get the function
   const func = window[funcName];
-  console.log("Found function:", { exists: !!func, type: typeof func });
-
   if (typeof func !== "function") {
     console.error(`Function '${funcName}' not found on window object`);
     console.log(
@@ -33,11 +29,9 @@ export function callGrainFunction(
   const context: GrainContext = {
     get: (path?: string) => {
       const state = path ? getValueAtPath(el.$grain, path) : el.$grain;
-      console.log("Context get:", { path, state });
       return state;
     },
     set: (updates: Partial<Grain>) => {
-      console.log("Context set:", { updates });
       const newState = { ...deepClone(el.$grain), ...updates };
       if (JSON.stringify(newState) !== JSON.stringify(el.$grain)) {
         const currentState = deepClone(el.$grain);
@@ -75,11 +69,6 @@ export function callGrainFunction(
   };
 
   try {
-    console.log("Executing function with:", {
-      context,
-      updates: updates || args,
-    });
-
     const result = updates ? func(context, updates) : func(context, args);
     return Promise.resolve(result);
   } catch (error) {

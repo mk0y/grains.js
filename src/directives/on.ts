@@ -3,11 +3,6 @@ import { GrainElement } from "../types";
 import { callGrainFunction } from "../core/function";
 
 export function handleOnDirective(el: HTMLElement, directiveValue: string) {
-  console.log("Setting up event handler:", {
-    element: el,
-    directive: directiveValue,
-  });
-
   // Parse the directive value
   const [eventName, handlerExpression] = directiveValue.split(":");
   const actualEventName = eventName || "click";
@@ -22,11 +17,6 @@ export function handleOnDirective(el: HTMLElement, directiveValue: string) {
 
   // Set up the event listener
   el.addEventListener(actualEventName, async (event) => {
-    console.log("Event triggered:", {
-      eventName: actualEventName,
-      expression: handlerExpression,
-    });
-
     event.preventDefault();
 
     try {
@@ -40,12 +30,6 @@ export function handleOnDirective(el: HTMLElement, directiveValue: string) {
       }
 
       const [, functionName, argsString] = functionNameMatch;
-      console.log("Parsed function details:", {
-        functionName,
-        argsString,
-        functionExists: !!window[functionName],
-      });
-
       // Parse arguments
       let args: any[] = [];
       if (argsString) {
@@ -60,8 +44,6 @@ export function handleOnDirective(el: HTMLElement, directiveValue: string) {
           return isNaN(num) ? arg : num;
         });
       }
-
-      console.log("Calling function with:", { functionName, args });
 
       // Call the function
       await callGrainFunction(grainEl, functionName, undefined, args);

@@ -9,7 +9,6 @@ import { EVENT_TYPES } from "../utils/constants";
 export function setupEventListeners(el: GrainElement) {
   const handlers = new Map<HTMLElement, (event: Event) => void>();
   const cache = ElementCache.getCache(el) || ElementCache.cacheElements(el);
-  console.log({ cache });
 
   const setupActionHandler = (actionEl: HTMLElement) => {
     const handler = async (event: Event) => {

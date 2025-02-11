@@ -6,48 +6,72 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="p-8">
-    <div g-state="dropdown" g-init="initState">
-      <!-- Trigger Button -->
-      <button
-        class="px-4 py-2 bg-white border rounded-lg shadow-sm hover:border-blue-500 focus:outline-none"
-        g-on:click="toggle"
-      >
-        <span g-text="selected"></span>
-      </button>
+    <div g-state="catsdogs" g-init="initState">
+      <div>
+        <!-- Trigger Button -->
+        <button
+          class="px-4 py-2 bg-white border rounded-lg shadow-sm hover:border-blue-500 focus:outline-none"
+          g-on:click="toggle"
+        >
+          <span g-text="selected">Select an option</span>
+        </button>
 
-      <!-- Dropdown Menu -->
-      <div
-        class="absolute mt-1 w-48 bg-white rounded-lg shadow-lg overflow-hidden"
-        g-show="isOpen"
-        g-transition="slideDown"
-      >
+        <!-- Dropdown Menu -->
         <div
-          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-          g-on:click="select('Option 1')"
+          class="absolute mt-1 w-48 bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-2000"
+          g-show="isOpen"
         >
-          Option 1
-        </div>
-        <div
-          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-          g-on:click="select('Option 2')"
-        >
-          Option 2
+          <div
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            g-on:click="select('dog')"
+          >
+            Random dog
+          </div>
+          <div
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            g-on:click="select('cat')"
+          >
+            Random cat
+          </div>
         </div>
       </div>
+      <div class="h-32"></div>
+      <p g-text="dogUrl"></p>
+      <img g-attr="src:dogUrl" src="" alt="Dog image" />
+      <img g-attr="src:catUrl" src="" alt="Cat image" />
     </div>
-    <p>Dev</p>
 
     <script>
-      window.initState = { isOpen: false, selected: "Select an option" };
+      window.initState = {
+        isOpen: false,
+        selected: "Select an option",
+        dogUrl: "",
+        catUrl: "",
+      };
       // Define functions in global scope
       toggle = function (ctx) {
-        console.log("Toggle called"); // Debug log
         ctx.set({ isOpen: !ctx.get().isOpen });
       };
 
       select = function (ctx, args) {
         const [option] = args;
-        console.log("Select called with option:", option); // Debug log
+        if (option == "dog") {
+          fetch("https://random.dog/woof.json")
+            .then((json) => json.json())
+            .then((dog) => {
+              ctx.set({ dogUrl: dog.url });
+            });
+        } else if (option == "cat") {
+          fetch("https://cataas.com/cat")
+            .then((response) => response.blob())
+            .then((blob) => {
+              const reader = new FileReader();
+              reader.onloadend = function () {
+                ctx.set({ catUrl: reader.result });
+              };
+              reader.readAsDataURL(blob);
+            });
+        }
         ctx.set({
           selected: option,
           isOpen: false,
