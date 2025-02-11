@@ -1,4 +1,4 @@
-import { DIRECTIVE_SELECTORS } from "./constants";
+import { DIRECTIVE_SELECTORS } from "./utils/constants";
 
 // Cache
 export class ElementCache {

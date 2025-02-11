@@ -1,4 +1,4 @@
-import { findClosestGrainElement } from "../utils";
+import { findClosestGrainElement } from "../utils/utils";
 import { GrainElement } from "../types";
 import { callGrainFunction } from "../core/function";
 

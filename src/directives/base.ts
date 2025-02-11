@@ -5,7 +5,7 @@ import { handleDisabledDirective } from "./disabled";
 import { handleClassDirective } from "./class";
 import { handleOnDirective } from "./on";
 import { handleTransitionDirective } from "./transition";
-import { DIRECTIVES } from "../constants";
+import { DIRECTIVES } from "../utils/constants";
 import { DirectiveHandler } from "../types";
 
 // Map of directive names to their handlers

@@ -1,6 +1,6 @@
 import diff from "microdiff";
 import rfdc from "rfdc";
-import type { GrainElement } from "./app";
+import type { GrainElement } from "../app";
 
 const clone = rfdc();
 

@@ -1,18 +1,33 @@
 // src/core/setup.ts
 import { GrainElement } from "../types";
 import { store } from "../store";
-import { deepClone } from "../utils";
+import { deepClone } from "../utils/utils";
 import { ElementCache } from "../cache";
 import { updateElementContent } from "../directives/base";
 import UpdateBatcher from "../batcher";
 import { setupEventListeners } from "./events";
 import { observe } from "./observe";
+import { initializeState } from "../utils/initialization";
 
-export function setupGrain(el: GrainElement) {
+export async function setupGrain(el: GrainElement) {
   const [stateName, _] = el.getAttribute("g-state")!.split(":");
-  const initialState = el.hasAttribute("g-init")
-    ? JSON.parse(el.getAttribute("g-init")!)
-    : {};
+  const gInit = el.getAttribute("g-init");
+  console.log(gInit);
+  let initialState = {};
+
+  if (gInit) {
+    const result = await initializeState(gInit);
+    console.log({ result });
+
+    if (!result.success) {
+      console.error(result.error || "Failed to initialize state");
+      return;
+    }
+
+    initialState = result.value ?? {};
+  } else {
+    console.warn("Initial state hasn't been set");
+  }
 
   // Initialize state and history
   store.initHistory(stateName);

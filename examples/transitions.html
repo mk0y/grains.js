@@ -6,10 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="p-8">
-    <div
-      g-state="dropdown"
-      g-init='{"isOpen": false, "selected": "Select an option"}'
-    >
+    <div g-state="dropdown" g-init="initState">
       <!-- Trigger Button -->
       <button
         class="px-4 py-2 bg-white border rounded-lg shadow-sm hover:border-blue-500 focus:outline-none"
@@ -22,7 +19,7 @@
       <div
         class="absolute mt-1 w-48 bg-white rounded-lg shadow-lg overflow-hidden"
         g-show="isOpen"
-        g-transition="fade"
+        g-transition="slideDown"
       >
         <div
           class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -41,6 +38,7 @@
     <p>Dev</p>
 
     <script>
+      window.initState = { isOpen: false, selected: "Select an option" };
       // Define functions in global scope
       toggle = function (ctx) {
         console.log("Toggle called"); // Debug log

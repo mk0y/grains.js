@@ -1,8 +1,8 @@
 // src/core/function.ts
 import { Grain, GrainElement, GrainContext } from "../types";
 import { store } from "../store";
-import { deepClone, getValueAtPath } from "../utils";
-import { MAX_HISTORY } from "../constants";
+import { deepClone, getValueAtPath } from "../utils/utils";
+import { MAX_HISTORY } from "../utils/constants";
 import UpdateBatcher, { updateElement } from "../batcher";
 
 export function callGrainFunction(

@@ -2,9 +2,9 @@
 import { GrainElement } from "../types";
 import { ElementCache } from "../cache";
 import { store } from "../store";
-import { deepClone, findClosestGrainElement } from "../utils";
+import { deepClone, findClosestGrainElement } from "../utils/utils";
 import { updateElement } from "../batcher";
-import { EVENT_TYPES } from "../constants";
+import { EVENT_TYPES } from "../utils/constants";
 
 export function setupEventListeners(el: GrainElement) {
   const handlers = new Map<HTMLElement, (event: Event) => void>();

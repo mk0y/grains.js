@@ -1,6 +1,6 @@
 // src/core/expressions.ts
-import { findClosestGrainElement } from "../utils";
-import { UTILITY_FUNCTIONS } from "../utility-functions";
+import { findClosestGrainElement } from "../utils/utils";
+import { UTILITY_FUNCTIONS } from "../utils/utility-functions";
 import { GrainElement } from "../types";
 
 type ExpressionArgument = string | number;

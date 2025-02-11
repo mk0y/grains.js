@@ -1,6 +1,6 @@
 // src/utility-functions.ts
-import { store } from "./store";
-import { GrainElement } from "./types";
+import { store } from "../store";
+import { GrainElement } from "../types";
 import { getValueAtPath } from "./utils";
 
 export const UTILITY_FUNCTIONS: Record<

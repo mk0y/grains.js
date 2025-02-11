@@ -1,4 +1,4 @@
-import { findClosestGrainElement, getValueAtPath } from "../utils";
+import { findClosestGrainElement, getValueAtPath } from "../utils/utils";
 
 export function handleTextDirective(el: HTMLElement, value: string): void {
   const path = value.replace(/[{}]/g, "").trim();
