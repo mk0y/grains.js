@@ -13,6 +13,19 @@ export function evaluateExpression(
   if (!grainEl) return false;
 
   try {
+    // Handle standalone utility functions
+    if (expression in UTILITY_FUNCTIONS) {
+      return UTILITY_FUNCTIONS[expression](grainEl);
+    }
+
+    // Handle negated standalone utility functions
+    if (
+      expression.startsWith("!") &&
+      expression.slice(1) in UTILITY_FUNCTIONS
+    ) {
+      return !UTILITY_FUNCTIONS[expression.slice(1)](grainEl);
+    }
+
     // Replace utility function calls with their results
     const resolvedExpression = expression.replace(
       /(\w+)\((.*?)\)/g,
