@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Minimal Grains.js Example</title>
+    <script defer src="../dist/grains.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 min-h-screen p-8">
+    <div
+      class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8"
+      g-state="counter"
+      g-init='{"count": 0, "score": 3}'
+    >
+      <!-- Header -->
+      <h1 class="text-3xl font-bold text-gray-800 mb-6">
+        <span class="mr-4"
+          >Count: <span g-text="count" class="text-blue-600"></span
+        ></span>
+        <span>Score: <span g-text="score" class="text-green-600"></span></span>
+      </h1>
+
+      <!-- Basic Controls -->
+      <div class="space-x-2 mb-6">
+        <button
+          g-click="increment"
+          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          +1
+        </button>
+        <button
+          g-click="decrement"
+          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          -1
+        </button>
+        <button
+          g-action="undo"
+          g-disabled="!canUndo"
+          class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Undo
+        </button>
+        <button
+          g-action="redo"
+          g-disabled="!canRedo"
+          class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Redo
+        </button>
+      </div>
+
+      <!-- Simple Condition Buttons -->
+      <div class="space-y-2 mb-6">
+        <div class="flex flex-wrap gap-2">
+          <button
+            g-disabled="!isPositive('count')"
+            class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Is Positive
+          </button>
+          <button
+            g-disabled="!isNegative('count')"
+            class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Is Negative
+          </button>
+          <button
+            g-disabled="!equals('count', 0)"
+            class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            equals('count', 0)
+          </button>
+        </div>
+      </div>
+
+      <!-- Complex Condition Buttons -->
+      <div class="space-y-2 mb-8">
+        <button
+          g-disabled="isPositive('count') && score < 5"
+          class="w-full text-left bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Disabled when: isPositive('count') && score < 5
+        </button>
+        <button
+          g-disabled="!isPositive('count') && score == 3"
+          class="w-full text-left bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Disabled when: !isPositive('count') && score == 3
+        </button>
+        <button
+          g-disabled="isPositive('count') || score < 0"
+          class="w-full text-left bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Disabled when: isPositive('count') || score < 0
+        </button>
+        <button
+          g-disabled="(isNegative('count') && count < -1) || count === 3"
+          class="w-full text-left bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Disabled when: (isNegative('count') && count < -1) || count === 3
+        </button>
+      </div>
+
+      <!-- Conditional Display Section -->
+      <div class="space-y-2 border-t border-gray-200 pt-6">
+        <div
+          g-show="count > 1"
+          class="bg-green-100 text-green-800 px-4 py-2 rounded-lg"
+        >
+          Count is greater than 1!
+        </div>
+        <div
+          g-show="count > 2 && score <= 3"
+          class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg"
+        >
+          Count is greater than 1 and score is <= 3!
+        </div>
+        <div
+          g-show="count == 0"
+          class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg"
+        >
+          Count is zero
+        </div>
+        <div
+          g-show="count > 0"
+          class="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-lg"
+        >
+          Count is positive
+        </div>
+        <div
+          g-show="count < 0"
+          class="bg-red-100 text-red-800 px-4 py-2 rounded-lg"
+        >
+          Count is negative
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function increment(ctx) {
+        // const { count } = ctx.get();
+        // ctx.set({ count: count + 1 });
+        ctx.set({ count: ctx.get("count") + 1 });
+      }
+      function decrement(ctx) {
+        // const { count } = ctx.get();
+        // ctx.set({ count: count - 1 });
+        ctx.set({ count: ctx.get("count") - 1 });
+      }
+    </script>
+  </body>
+</html>
