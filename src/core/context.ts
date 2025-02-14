@@ -1,4 +1,4 @@
-// src/core/function.ts
+// src/core/context.ts
 import { Grain, GrainElement, GrainContext } from "../types";
 import { store } from "../store";
 import { deepClone, getValueAtPath } from "../utils";

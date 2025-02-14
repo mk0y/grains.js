@@ -138,13 +138,9 @@
 
     <script>
       function increment(ctx) {
-        // const { count } = ctx.get();
-        // ctx.set({ count: count + 1 });
         ctx.set({ count: ctx.get("count") + 1 });
       }
       function decrement(ctx) {
-        // const { count } = ctx.get();
-        // ctx.set({ count: count - 1 });
         ctx.set({ count: ctx.get("count") - 1 });
       }
     </script>

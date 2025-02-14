@@ -3,7 +3,7 @@ import { GrainElement } from "../types";
 import { ElementCache } from "../cache";
 import { store } from "../store";
 import { deepClone, findClosestGrainElement } from "../utils";
-import { callGrainFunction } from "./function";
+import { callGrainFunction } from "./context";
 import { updateElement } from "../batcher";
 
 export function setupEventListeners(el: GrainElement) {

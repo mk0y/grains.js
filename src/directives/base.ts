@@ -3,6 +3,7 @@ import { handleTextDirective } from "./text";
 import { handleShowDirective } from "./show";
 import { handleDisabledDirective } from "./disabled";
 import { handleClassDirective } from "./class";
+import { handleAttrDirective } from "./attr";
 import { DIRECTIVES } from "../constants";
 import { DirectiveHandler } from "../types";
 
@@ -12,6 +13,7 @@ const directiveHandlers: Record<string, DirectiveHandler> = {
   "g-show": handleShowDirective,
   "g-disabled": handleDisabledDirective,
   "g-class": handleClassDirective,
+  "g-attr": handleAttrDirective,
 };
 
 export function updateElementContent(el: HTMLElement) {
