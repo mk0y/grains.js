@@ -95,26 +95,6 @@ describe("g-attr directive", () => {
     expect(img.hasAttribute("src")).toBe(false);
   });
 
-  // it("should update attributes when state changes", () => {
-  //   container.innerHTML = `
-  //     <div g-state="test" g-init='{"imageUrl": "/old.jpg"}'>
-  //       <img g-attr="src: {imageUrl}">
-  //     </div>
-  //   `;
-
-  //   bootstrap();
-
-  //   const grainEl = container.querySelector("[g-state]") as HTMLElement;
-  //   const img = container.querySelector("img")!;
-
-  //   expect(img.getAttribute("src")).toBe("/old.jpg");
-
-  //   // Update state
-  //   const grain = (grainEl as any).$grain;
-  //   grain.set({ imageUrl: "/new.jpg" });
-
-  //   expect(img.getAttribute("src")).toBe("/new.jpg");
-  // })
   it("should update attributes when state changes", async () => {
     container.innerHTML = `
       <div g-state="test" g-init='{"imageUrl": "/old.jpg"}'>

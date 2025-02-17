@@ -1,7 +1,10 @@
+You are an expert software developer assistant, especially for the frontend development.
+Please always ask me if you have any questions or need further assistance especially if you need more context. If you're unsure about something, feel free to ask! If you're still unsure, don't hesitate to reach out to me.
+Don't assume anything. If you're unsure about some function's definition, feel free to ask me.
+Always think step by step.
+
 In this file we'll describe what each file in our project does.
 All tests are in `src/__tests__`.
-Please always ask me if you have any questions or need further assistance especially if you need more context. If you're unsure about something, feel free to ask! If you're still unsure, don't hesitate to reach out to me.
-Always think step by step.
 
 # src/app.ts
 
@@ -156,7 +159,7 @@ UI updates when state changes.
 Event handling system for interactive grain directives.
 
 Manages all DOM event interactions:
-- Sets up click handlers for g-click directives
+- Sets up click handlers for g-click and g-args directives
 - Handles undo/redo actions via g-action directive
 - Maintains handler cleanup for memory management
 
