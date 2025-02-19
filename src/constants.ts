@@ -46,3 +46,5 @@ export const DIRECTIVES = [
   "g-show",
   "g-attr",
 ] as const;
+
+export const MAX_HISTORY = 50;

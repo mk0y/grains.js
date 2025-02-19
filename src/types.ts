@@ -22,6 +22,12 @@ export type GrainContext = {
   redo: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
+  states: {
+    [key: string]: {
+      get: (path: string) => any;
+      set: (updates: Partial<Grain>) => void;
+    };
+  };
 };
 
 export type DirectiveHandler = (el: HTMLElement, value: string) => void;

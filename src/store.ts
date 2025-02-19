@@ -29,6 +29,10 @@ class GrainStore {
   initHistory(name: string) {
     this.history.set(name, { past: [], future: [] });
   }
+
+  getAllStates() {
+    return this.grains.entries();
+  }
 }
 
 export const store = new GrainStore();
