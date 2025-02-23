@@ -137,4 +137,66 @@ describe("g-class directive", () => {
     const div = container.querySelector("[g-class]")!;
     expect(div.classList.contains("active")).toBe(false);
   });
+
+  it("should handle space-separated classes in quoted strings", () => {
+    container.innerHTML = `
+      <div g-state="test" g-init='{"isActive": true}'>
+        <div g-class="['base primary', isActive && 'active highlight']">Test</div>
+      </div>
+    `;
+
+    bootstrap();
+
+    const div = container.querySelector("[g-class]")!;
+    expect(div.classList.contains("base")).toBe(true);
+    expect(div.classList.contains("primary")).toBe(true);
+    expect(div.classList.contains("active")).toBe(true);
+    expect(div.classList.contains("highlight")).toBe(true);
+  });
+
+  it("should handle space-separated classes in conditional expressions", () => {
+    container.innerHTML = `
+      <div g-state="test" g-init='{"isActive": true}'>
+        <div g-class="[isActive && 'transform transition-all duration-300']">Test</div>
+      </div>
+    `;
+
+    bootstrap();
+
+    const div = container.querySelector("[g-class]")!;
+    expect(div.classList.contains("transform")).toBe(true);
+    expect(div.classList.contains("transition-all")).toBe(true);
+    expect(div.classList.contains("duration-300")).toBe(true);
+  });
+
+  it("should properly remove space-separated classes when condition becomes false", async () => {
+    container.innerHTML = `
+      <div g-state="test" g-init='{"isActive": true}'>
+        <div g-class="[isActive && 'transform transition-all duration-300']">Test</div>
+        <button g-on:click="toggle">Toggle</button>
+      </div>
+    `;
+
+    window.toggle = function (ctx: any) {
+      ctx.set({ isActive: false });
+    };
+
+    bootstrap();
+
+    const grainEl = container.querySelector("[g-state]") as GrainElement;
+    const div = container.querySelector("[g-class]")!;
+
+    expect(div.classList.contains("transform")).toBe(true);
+    expect(div.classList.contains("transition-all")).toBe(true);
+    expect(div.classList.contains("duration-300")).toBe(true);
+
+    await callGrainFunction(grainEl, "toggle");
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    expect(div.classList.contains("transform")).toBe(false);
+    expect(div.classList.contains("transition-all")).toBe(false);
+    expect(div.classList.contains("duration-300")).toBe(false);
+
+    delete window.toggle;
+  });
 });

@@ -21,16 +21,16 @@ function parseClassExpression(value: string): string[] | null {
 function evaluateClassCondition(
   element: HTMLElement,
   expression: string,
-): boolean | string | null {
+): boolean | string | string[] | null {
   try {
-    // First, check if it's a simple class name (no special characters)
-    if (/^[a-zA-Z0-9-_]+$/.test(expression)) {
-      return expression;
+    // Handle quoted string literals with space-separated classes
+    if (expression.match(/^['"].*['"]$/)) {
+      return expression.slice(1, -1).split(" ");
     }
 
-    // Handle quoted string literals (like 'base' or "base")
-    if (expression.match(/^['"].*['"]$/)) {
-      return expression.slice(1, -1);
+    // First, check if it's a simple class name (no special characters)
+    if (/^[a-zA-Z0-9-_\s]+$/.test(expression)) {
+      return expression.split(" ");
     }
 
     // Handle conditional expressions
@@ -39,12 +39,12 @@ function evaluateClassCondition(
         .split("&&")
         .map((part) => part.trim());
       const result = evaluateExpression(element, condition);
-      return result ? className.replace(/['"]/g, "") : false;
+      return result ? className.replace(/['"]/g, "").split(" ") : false;
     }
 
     // Try evaluating as expression
     const result = evaluateExpression(element, expression);
-    return result ? expression : false;
+    return result ? expression.split(" ") : false;
   } catch (error) {
     console.error("[Grains.js] Error evaluating class condition:", error);
     return null;
@@ -73,13 +73,19 @@ export function updateClassDirective(element: HTMLElement): void {
 
   expressions.forEach((expr) => {
     const result = evaluateClassCondition(element, expr);
-    if (typeof result === "string") {
+    if (Array.isArray(result)) {
+      result.forEach((className) => {
+        if (className) element.classList.add(className.trim());
+      });
+    } else if (typeof result === "string") {
       element.classList.add(result);
     } else if (result === false) {
       // Extract class name from expression and remove it
       const className = expr.split("&&")[1]?.trim().replace(/['"]/g, "");
       if (className) {
-        element.classList.remove(className);
+        className.split(" ").forEach((cls) => {
+          element.classList.remove(cls.trim());
+        });
       }
     }
   });

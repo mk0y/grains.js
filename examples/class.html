@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Grains.js Class Directive Example</title>
+    <script defer src="../dist/grains.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .notification-box {
+        padding: 1rem;
+        margin: 1rem;
+        border-radius: 0.5rem;
+      }
+      .error-state {
+        background-color: #fee2e2;
+        border: 1px solid #ef4444;
+        color: #dc2626;
+      }
+      .success-state {
+        background-color: #dcfce7;
+        border: 1px solid #22c55e;
+        color: #16a34a;
+      }
+      .important {
+        font-weight: bold;
+        border-width: 2px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen p-8">
+    <div g-state="notification" g-init='{"type": "error", "isImportant": true}'>
+      <h2 class="text-xl mb-4">Class Directive Examples</h2>
+
+      <!-- Basic example with static class -->
+      <div g-class="['notification-box']">Basic notification box</div>
+
+      <!-- Conditional class with AND operator -->
+      <div g-class="['notification-box', type === 'error' && 'error-state']">
+        Error notification
+      </div>
+
+      <!-- Multiple conditions with AND operator -->
+      <div
+        g-class="['notification-box', type === 'error' && 'error-state', isImportant && 'important']"
+      >
+        Important error notification
+      </div>
+
+      <!-- Toggle controls -->
+      <div class="mt-4 space-x-2">
+        <button
+          class="px-4 py-2 bg-blue-500 text-white rounded"
+          g-on:click="toggleType"
+        >
+          Toggle Type
+        </button>
+        <button
+          class="px-4 py-2 bg-blue-500 text-white rounded"
+          g-on:click="toggleImportance"
+        >
+          Toggle Importance
+        </button>
+      </div>
+    </div>
+
+    <script>
+      window.toggleType = function (ctx) {
+        const currentType = ctx.get("type");
+        ctx.set({ type: currentType === "error" ? "success" : "error" });
+      };
+
+      window.toggleImportance = function (ctx) {
+        const current = ctx.get("isImportant");
+        ctx.set({ isImportant: !current });
+      };
+    </script>
+  </body>
+</html>

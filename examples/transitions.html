@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Grains.js Animation Example</title>
+    <script defer src="../dist/grains.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+      .shake {
+        animation: shake 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen p-8">
+    <div
+      g-state="notifications"
+      g-init='{"isVisible": false, "isError": false, "isShaking": false}'
+    >
+      <h2 class="text-xl mb-4">Animated Notifications</h2>
+
+      <!-- Fade and Slide notification -->
+      <div
+        g-class="[
+          'transform transition-all duration-300 ease-in-out',
+          'p-4 rounded-lg shadow-lg mb-4',
+          isVisible && 'translate-y-0 opacity-100',
+          !isVisible && 'translate-y-4 opacity-0',
+          isError && 'bg-red-100 text-red-700',
+          !isError && 'bg-green-100 text-green-700',
+          isShaking && 'shake'
+        ]"
+      >
+        <p class="font-medium">Notification Message</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="space-x-2">
+        <button
+          g-on:click="toggleVisibility"
+          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+        >
+          Toggle Visibility
+        </button>
+        <button
+          g-on:click="toggleError"
+          class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+        >
+          Toggle Error State
+        </button>
+        <button
+          g-on:click="triggerShake"
+          class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+        >
+          Shake Animation
+        </button>
+      </div>
+    </div>
+
+    <script>
+      window.toggleVisibility = function (ctx) {
+        ctx.set({ isVisible: !ctx.get("isVisible") });
+      };
+
+      window.toggleError = function (ctx) {
+        ctx.set({ isError: !ctx.get("isError") });
+      };
+
+      window.triggerShake = function (ctx) {
+        ctx.set({ isShaking: true });
+        setTimeout(() => {
+          ctx.set({ isShaking: false });
+        }, 500);
+      };
+    </script>
+  </body>
+</html>
