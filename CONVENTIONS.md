@@ -239,6 +239,59 @@ Provides a collection of helper functions for common state operations:
 These functions are available in expressions and can be
 called directly or used in conditional statements.
 
+## src/directives/action.ts
+
+Undo/Redo action handler for state management.
+
+Implements the g-action directive which provides history-based state manipulation:
+1. State Management
+   - Handles "undo" and "redo" actions for state changes
+   - Integrates with the global store's history system
+   - Manages past and future state stacks
+
+2. Event Handling
+   - Creates click event handlers for action elements
+   - Prevents default event behavior
+   - Validates action types ("undo" or "redo")
+
+3. State Updates
+   - Deep clones states for history preservation
+   - Updates DOM through the batcher system
+   - Maintains state consistency during undo/redo operations
+
+Key features:
+- Automatic history stack management
+- DOM updates after state changes
+- Error handling and validation
+- Event cleanup support
+
+## src/directives/attr.ts
+
+Dynamic attribute manipulation handler.
+
+Implements the g-attr directive for reactive attribute binding:
+1. Attribute Management
+   - Handles multiple attribute bindings
+   - Supports boolean attributes (disabled, checked, etc.)
+   - Validates attribute names and expressions
+
+2. Expression Handling
+   - Supports both simple state references and complex expressions
+   - Resolves placeholders in attribute values
+   - Handles null/undefined values appropriately
+
+3. Value Processing
+   - Converts string values to appropriate types
+   - Handles boolean attributes specially
+   - Supports both HTML and ARIA attributes
+
+Features:
+- Multiple attribute bindings in single directive
+- Validation of HTML attribute names
+- Special handling for boolean attributes
+- Support for data-* and aria-* attributes
+- Expression evaluation with state context
+
 ## src/directives/base.ts
 
 Core directive handling system and orchestration.
@@ -254,18 +307,37 @@ a specific order to ensure consistent DOM updates.
 
 ## src/directives/class.ts
 
-Class directive handler for dynamic CSS classes
+Class directive handler for dynamic CSS classes.
 
-Supports multiple class manipulation patterns:
-- Direct class string assignment
-- Object-based conditional classes
-- Expression-based class toggling
+Implements multiple class binding patterns:
+1. Static Class Assignment
+   - Direct class name assignment (`g-class="base"`)
+   - Simple string-based class application
+
+2. Conditional Classes
+   - Boolean condition-based classes (`g-class="[isActive && 'active']"`)
+   - Multiple conditions in array syntax
+   - Expression-based class toggling
+
+3. Mixed Class Applications
+   - Combined static and conditional classes
+   - Array-based multiple class definitions
+   - Complex condition evaluation
 
 Features:
-- Placeholder interpolation
+- Simple class name validation
 - Expression evaluation for conditions
-- Error handling for invalid expressions
-- Both simple and complex class bindings
+- Multiple class handling in single directive
+- Safe string literal handling
+- Error resilience for invalid expressions
+- Automatic class cleanup on condition changes
+
+Implementation details:
+- Handles quoted and unquoted class names
+- Supports complex state-based conditions
+- Integrates with expression evaluation system
+- Maintains element class list consistency
+- Clean error handling and logging
 
 ## src/directives/disabled.ts
 
@@ -276,7 +348,7 @@ Manages element disabled state based on expressions:
 - Evaluates conditions for disabled state
 - Sets disabled property based on expression result
 
-Simple but essential directive for form interaction control
+Simple but essential directive for form interaction control.
 
 ## src/directives/show.ts
 
@@ -287,7 +359,7 @@ Toggles element visibility through display style:
 - Shows element by restoring original display
 - Hides element using display: none
 
-Simple toggle mechanism for conditional rendering
+Simple toggle mechanism for conditional rendering.
 
 ## src/directives/text.ts
 
@@ -299,4 +371,4 @@ Manages dynamic text content updates:
 - Safely converts values to strings
 - Cleans up content when state is unavailable
 
-Core directive for displaying reactive text content
+Core directive for displaying reactive text content.
