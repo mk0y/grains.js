@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">43.18% </span>
+                <span class="strong">95.45% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>19/44</span>
+                <span class='fraction'>42/44</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">75% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>6/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">43.18% </span>
+                <span class="strong">95.45% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/44</span>
+                <span class='fraction'>42/44</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -117,37 +117,37 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -160,38 +160,38 @@ export const UTILITY_FUNCTIONS: Record&lt;
   string,
   (el: GrainElement, ...args: any[]) =&gt; boolean
 &gt; = {
-  canUndo: <span class="fstat-no" title="function not covered" >(el) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    const stateName = el.getAttribute("g-state")!.split(":")[0];</span>
-<span class="cstat-no" title="statement not covered" >    const history = store.getHistory(stateName);</span>
-<span class="cstat-no" title="statement not covered" >    if (history) {</span>
+  canUndo: (el) =&gt; {
+    const stateName = el.getAttribute("g-state")!.split(":")[0];
+    const history = store.getHistory(stateName);
+    if (history) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >      return history?.past.length &gt; 0;</span>
-<span class="cstat-no" title="statement not covered" >    } else {</span>
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >  },</span>
-  canRedo: <span class="fstat-no" title="function not covered" >(el) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    const stateName = el.getAttribute("g-state")!.split(":")[0];</span>
-<span class="cstat-no" title="statement not covered" >    const history = store.getHistory(stateName);</span>
-<span class="cstat-no" title="statement not covered" >    if (history) {</span>
+    } else {
+      return false;
+    }
+  },
+  canRedo: (el) =&gt; {
+    const stateName = el.getAttribute("g-state")!.split(":")[0];
+    const history = store.getHistory(stateName);
+    if (history) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >      return history?.future.length &gt; 0;</span>
-<span class="cstat-no" title="statement not covered" >    } else {</span>
-<span class="cstat-no" title="statement not covered" >      return false;</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >  },</span>
+    } else {
+      return false;
+    }
+  },
   // Value checks with parameters
-  isPositive: <span class="fstat-no" title="function not covered" >(el: GrainElement, path: string) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    return getValueAtPath(el.$grain, path) &gt; 0;</span>
-<span class="cstat-no" title="statement not covered" >  },</span>
-  isNegative: <span class="fstat-no" title="function not covered" >(el: GrainElement, path: string) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    return getValueAtPath(el.$grain, path) &lt; 0;</span>
-<span class="cstat-no" title="statement not covered" >  },</span>
-  isEmpty: <span class="fstat-no" title="function not covered" >(el: GrainElement, path: string) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    const value = getValueAtPath(el.$grain, path);</span>
-<span class="cstat-no" title="statement not covered" >    return value === 0 || value === "" || value === null;</span>
-<span class="cstat-no" title="statement not covered" >  },</span>
-  equals: <span class="fstat-no" title="function not covered" >(el: GrainElement, path: string, compareValue: any) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    return getValueAtPath(el.$grain, path) === compareValue;</span>
-<span class="cstat-no" title="statement not covered" >  },</span>
+  isPositive: (el: GrainElement, path: string) =&gt; {
+    return getValueAtPath(el.$grain, path) &gt; 0;
+  },
+  isNegative: (el: GrainElement, path: string) =&gt; {
+    return getValueAtPath(el.$grain, path) &lt; 0;
+  },
+  isEmpty: (el: GrainElement, path: string) =&gt; {
+    const value = getValueAtPath(el.$grain, path);
+    return value === 0 || value === "" || value === null;
+  },
+  equals: (el: GrainElement, path: string, compareValue: any) =&gt; {
+    return getValueAtPath(el.$grain, path) === compareValue;
+  },
 } as const;
 &nbsp;
 export type UtilityFunction = keyof typeof UTILITY_FUNCTIONS;
@@ -202,7 +202,7 @@ export type UtilityFunction = keyof typeof UTILITY_FUNCTIONS;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-23T19:37:47.451Z
+                at 2025-03-02T11:08:57.077Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
