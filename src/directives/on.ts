@@ -1,18 +1,18 @@
 // src/core/directives/on.ts
-import { findClosestGrainElement } from "../utils";
-import { callGrainFunction } from "../core/context";
 import { VALID_DOM_EVENTS } from "../constants";
+import { callGrainFunction } from "../core/context";
+import { findClosestGrainElement } from "../utils";
 
 export function validateEventName(
   eventName: string,
-  element: HTMLElement,
+  element: HTMLElement
 ): boolean {
   if (!VALID_DOM_EVENTS.has(eventName)) {
     console.warn(
       `[Grains.js] Invalid event type "${eventName}" in g-on:${eventName}. ` +
         `Element:`,
       element,
-      `\nValid events are: ${Array.from(VALID_DOM_EVENTS).join(", ")}`,
+      `\nValid events are: ${Array.from(VALID_DOM_EVENTS).join(", ")}`
     );
     return false;
   }
@@ -21,12 +21,12 @@ export function validateEventName(
 
 export function validateFunctionName(
   funcName: string,
-  element: HTMLElement,
+  element: HTMLElement
 ): boolean {
   if (!funcName) {
     console.warn(
       "[Grains.js] Empty function name provided for event handler. Element:",
-      element,
+      element
     );
     return false;
   }
@@ -35,7 +35,7 @@ export function validateFunctionName(
     console.warn(
       `[Grains.js] Function "${funcName}" not found in global scope. ` +
         `Make sure it's defined before the element. Element:`,
-      element,
+      element
     );
     return false;
   }
@@ -46,7 +46,7 @@ export function validateFunctionName(
 export function createEventHandler(
   element: HTMLElement,
   eventName: string,
-  funcName: string,
+  funcName: string
 ): (event: Event) => Promise<void> {
   return async (event: Event) => {
     event.preventDefault();
@@ -63,7 +63,7 @@ export function createEventHandler(
           "[Grains.js] Invalid g-args format. Must be a valid JSON array. Element:",
           element,
           "\nError:",
-          error,
+          error
         );
         return;
       }
@@ -74,7 +74,7 @@ export function createEventHandler(
       if (!grainEl) {
         console.warn(
           "[Grains.js] No parent grain element found. Event handler cannot be executed. Element:",
-          element,
+          element
         );
         return;
       }
@@ -84,59 +84,26 @@ export function createEventHandler(
         `[Grains.js] Error in ${eventName} handler "${funcName}":`,
         error,
         "\nElement:",
-        element,
+        element
       );
     }
   };
 }
 
-// export function setupOnDirective(
-//   element: HTMLElement,
-//   handlers: Map<HTMLElement, Map<string, (event: Event) => void>>,
-// ) {
-//   Array.from(element.attributes).forEach((attr) => {
-//     if (attr.name.startsWith("g-on:")) {
-//       const eventName = attr.name.split("g-on:")[1];
-//       const funcName = attr.value;
-
-//       if (
-//         validateEventName(eventName, element) &&
-//         validateFunctionName(funcName, element)
-//       ) {
-//         const handler = createEventHandler(element, eventName, funcName);
-//         element.addEventListener(eventName, handler);
-
-//         if (!handlers.has(element)) {
-//           handlers.set(element, new Map());
-//         }
-//         handlers.get(element)!.set(eventName, handler);
-//       }
-//     }
-//   });
-// }
 export function setupOnDirective(
   element: HTMLElement,
-  handlers: Map<HTMLElement, Map<string, (event: Event) => void>>,
+  handlers: Map<HTMLElement, Map<string, (event: Event) => void>>
 ) {
   Array.from(element.attributes).forEach((attr) => {
     if (attr.name.startsWith("g-on:")) {
-      const eventName = attr.name.split("g-on:")[1];
+      const eventName = attr.name.substring("g-on:".length); //More efficient substring
       const funcName = attr.value;
 
-      // Validate event name first
-      if (!VALID_DOM_EVENTS.has(eventName)) {
-        console.warn(
-          `[Grains.js] Invalid event type "${eventName}" in g-on:${eventName}. Element:`,
-          element,
-          `\nValid events are: ${Array.from(VALID_DOM_EVENTS).join(", ")}`,
-        );
-        return; // Skip invalid events
-      }
+      // Validate event name FIRST
+      if (!validateEventName(eventName, element)) return;
 
       // Then validate function name
-      if (!validateFunctionName(funcName, element)) {
-        return; // Skip invalid functions
-      }
+      if (!validateFunctionName(funcName, element)) return;
 
       const handler = createEventHandler(element, eventName, funcName);
       element.addEventListener(eventName, handler);

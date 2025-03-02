@@ -1,13 +1,5 @@
 // src/__tests__/batcher.test.ts
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  MockInstance,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import UpdateBatcher, { updateElement } from "../batcher";
 import { ElementCache } from "../cache";
 import { updateElementContent } from "../directives/base";
