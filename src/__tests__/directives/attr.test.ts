@@ -1,5 +1,5 @@
 // src/__tests__/directives/attr.test.ts
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { bootstrap, GrainElement } from "../../app";
 import { callGrainFunction } from "../../core/context";
 
@@ -150,5 +150,140 @@ describe("g-attr directive", () => {
 
     const button = container.querySelector("button")!;
     expect(button.hasAttribute("disabled")).toBe(false);
+  });
+
+  it("should handle empty attribute names gracefully", () => {
+    const consoleSpy = vi.spyOn(console, "warn");
+    container.innerHTML = `
+      <div g-state="test">
+        <img g-attr=": {imageUrl}">
+      </div>
+    `;
+    bootstrap();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Empty attribute name in g-attr directive:",
+      expect.any(HTMLElement)
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it("should handle empty expressions gracefully", () => {
+    const consoleSpy = vi.spyOn(console, "warn");
+    container.innerHTML = `
+      <div g-state="test">
+        <img g-attr="src:">
+      </div>
+    `;
+    bootstrap();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Empty expression for attribute "src" in g-attr directive:',
+      expect.any(HTMLElement)
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it("should handle invalid attribute names gracefully", () => {
+    const consoleSpy = vi.spyOn(console, "warn");
+    container.innerHTML = `
+      <div g-state="test">
+        <img g-attr="src!: {imageUrl}">
+      </div>
+    `;
+    bootstrap();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Invalid attribute name "src!" in g-attr directive. Use only letters, numbers, hyphens, and underscores:',
+      expect.any(HTMLElement)
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it("should handle potentially invalid HTML attributes with a warning", () => {
+    const consoleSpy = vi.spyOn(console, "warn");
+    container.innerHTML = `
+      <div g-state="test">
+        <img g-attr="invalid-attr: {imageUrl}">
+      </div>
+    `;
+    bootstrap();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Potentially invalid HTML attribute "invalid-attr" in g-attr directive:',
+      expect.any(HTMLElement)
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it("should handle unclosed placeholders gracefully", () => {
+    const consoleSpy = vi.spyOn(console, "warn");
+    container.innerHTML = `
+      <div g-state="test">
+        <img g-attr="src: {imageUrl">
+      </div>
+    `;
+    bootstrap();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Unclosed placeholder in expression "{imageUrl" for attribute "src":',
+      expect.any(HTMLElement)
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it("should handle invalid attribute syntax gracefully", () => {
+    const consoleSpy = vi.spyOn(console, "warn");
+    container.innerHTML = `
+      <div g-state="test">
+        <img g-attr="src expression">
+      </div>
+    `;
+    bootstrap();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Invalid g-attr syntax. Use "attribute: expression" format:',
+      expect.any(HTMLElement)
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it("should handle multiple invalid bindings gracefully", () => {
+    const consoleSpy = vi.spyOn(console, "warn");
+    container.innerHTML = `
+      <div g-state="test">
+        <img g-attr="src: {imageUrl}, alt:, invalid-attr: {imageUrl}">
+      </div>
+    `;
+    bootstrap();
+    expect(consoleSpy).toHaveBeenCalledTimes(2); // Expect warnings for empty expression and invalid attribute name
+    consoleSpy.mockRestore();
+  });
+
+  it("should handle simple state reference without complex expression checks", async () => {
+    container.innerHTML = `
+      <div g-state="test" g-init='{"imageUrl": "/test.jpg"}'>
+        <img g-attr="src: {imageUrl}">
+      </div>
+    `;
+
+    bootstrap();
+
+    const img = container.querySelector("img")!;
+    expect(img.getAttribute("src")).toBe("/test.jpg");
+  });
+
+  it("should handle null and undefined values correctly", () => {
+    container.innerHTML = `
+      <div g-state="test" g-init='{"testAttr": null}'>
+        <img g-attr="alt: {testAttr}">
+      </div>
+    `;
+    bootstrap();
+    const img = container.querySelector("img")!;
+    expect(img.getAttribute("alt")).toBe(null);
+
+    container.innerHTML = `
+      <div g-state="test" g-init='{"testAttr": undefined}'>
+        <img g-attr="alt: {testAttr}">
+      </div>
+    `;
+    bootstrap();
+    const img2 = container.querySelector("img")!;
+    expect(img2.hasAttribute("alt")).toBe(false);
   });
 });

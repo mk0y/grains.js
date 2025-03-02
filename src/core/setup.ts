@@ -1,17 +1,20 @@
 // src/core/setup.ts
-import { GrainElement } from "../types";
-import { store } from "../store";
-import { deepClone } from "../utils";
+import UpdateBatcher from "../batcher";
 import { ElementCache } from "../cache";
 import { updateElementContent } from "../directives/base";
-import UpdateBatcher from "../batcher";
+import { store } from "../store";
+import { GrainElement } from "../types";
+import { deepClone } from "../utils";
 import { setupEventListeners } from "./events";
 import { observe } from "./observe";
 
 export function setupGrain(el: GrainElement) {
   const [stateName, _] = el.getAttribute("g-state")!.split(":");
+  const gInitVal = el.getAttribute("g-init");
+  // Replace occurrences of undefined with null
+  const gInitValSafe = gInitVal?.replace(/\bundefined\b/g, "null") || "{}";
   const initialState = el.hasAttribute("g-init")
-    ? JSON.parse(el.getAttribute("g-init")!)
+    ? JSON.parse(gInitValSafe)
     : {};
 
   // Initialize state and history
