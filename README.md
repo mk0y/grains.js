@@ -2,6 +2,9 @@
 
 A lightweight reactive micro-states management library for HTML. Grains.js allows you to create isolated state containers in your HTML using custom attributes, without any build step or complex setup.
 
+![Tests](https://github.com/mk0y/grains.js/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://codecov.io/gh/mk0y/grains.js/branch/main/graph/badge.svg)
+
 ## Features
 
 - 🎯 Micro-states: Create isolated state containers for specific HTML segments
