@@ -1,5 +1,5 @@
 // src/__tests__/directives/on.test.ts
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { bootstrap, GrainElement } from "../../app";
 // import { callGrainFunction } from "../../core/context";
 
@@ -116,7 +116,7 @@ describe("g-on directive", () => {
         canRedo: expect.any(Function),
         getState: expect.any(Function),
       }),
-      ["arg1", 42], // args are passed as an array
+      ["arg1", 42] // args are passed as an array
     );
 
     delete window.handleClick;
@@ -135,7 +135,7 @@ describe("g-on directive", () => {
 
     expect(consoleSpy).toHaveBeenCalledWith(
       '[Grains.js] Function "nonExistentFunction" not found in global scope. Make sure it\'s defined before the element. Element:',
-      expect.any(HTMLButtonElement),
+      expect.any(HTMLButtonElement)
     );
 
     consoleSpy.mockRestore();
@@ -190,5 +190,58 @@ describe("g-on directive", () => {
     expect(mockFn).not.toHaveBeenCalled();
 
     delete window.handleClick;
+  });
+
+  it("should handle form submission", async () => {
+    const handleSubmit = vi.fn();
+    window.handleSubmit = handleSubmit;
+
+    container.innerHTML = `
+      <div g-state="formData" g-init='{"name": "", "email": ""}'>
+        <form g-on:submit="handleSubmit">
+          <input type="text" name="name" g-model="name" />
+          <input type="text" name="email" g-model="email" />
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    `;
+
+    bootstrap();
+
+    const form = container.querySelector("form")!;
+    const nameInput = form.querySelector(
+      'input[name="name"]'
+    ) as HTMLInputElement;
+    const emailInput = form.querySelector(
+      'input[name="email"]'
+    ) as HTMLInputElement;
+
+    nameInput.value = "Test User";
+    emailInput.value = "test@example.com";
+
+    form.dispatchEvent(new Event("submit"));
+
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    expect(handleSubmit).toHaveBeenCalled(); //Check if called at all first.
+    let [context, event] = handleSubmit.mock.calls[0];
+    const args = handleSubmit.mock.calls[0];
+    // console.log("Arguments passed to handleSubmit:", args); // crucial debugging step
+    console.log({ context, event, args });
+
+    expect(handleSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        get: expect.any(Function),
+        set: expect.any(Function),
+        undo: expect.any(Function),
+        redo: expect.any(Function),
+        canUndo: expect.any(Function),
+        canRedo: expect.any(Function),
+        getState: expect.any(Function),
+        states: expect.any(Object),
+      }),
+      [expect.any(HTMLFormElement), expect.any(Event)]
+    );
+    delete window.handleSubmit;
   });
 });

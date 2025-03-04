@@ -3,19 +3,46 @@ import UpdateBatcher from "../batcher";
 import { ElementCache } from "../cache";
 import { updateElementContent } from "../directives/base";
 import { store } from "../store";
-import { GrainElement } from "../types";
+import { Grain, GrainElement } from "../types";
 import { deepClone } from "../utils";
 import { setupEventListeners } from "./events";
 import { observe } from "./observe";
 
+function getInitValue(el: GrainElement): Grain {
+  const gInitVal = el.getAttribute("g-init");
+  if (gInitVal) {
+    try {
+      // Attempt to parse as JSON first
+      return JSON.parse(gInitVal);
+    } catch (jsonError) {
+      //If not valid JSON, try global variable
+      const globalVarName = gInitVal.trim();
+      if (globalVarName in window) {
+        const globalVar = window[globalVarName];
+        if (typeof globalVar === "object") {
+          return globalVar;
+        } else {
+          console.error(
+            `[Grains.js] Global variable "${globalVarName}" is not an object. Using empty object. Grain: `,
+            el
+          );
+          return {};
+        }
+      } else {
+        console.warn(
+          `[Grains.js] g-init attribute "${globalVarName}" is neither valid JSON nor a reference to a global object variable. Using empty object as initial state. Grain: `,
+          el
+        );
+        return {};
+      }
+    }
+  }
+  return {};
+}
+
 export function setupGrain(el: GrainElement) {
   const [stateName, _] = el.getAttribute("g-state")!.split(":");
-  const gInitVal = el.getAttribute("g-init");
-  // Replace occurrences of undefined with null
-  const gInitValSafe = gInitVal?.replace(/\bundefined\b/g, "null") || "{}";
-  const initialState = el.hasAttribute("g-init")
-    ? JSON.parse(gInitValSafe)
-    : {};
+  const initialState = getInitValue(el);
 
   // Initialize state and history
   store.initHistory(stateName);

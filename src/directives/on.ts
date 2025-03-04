@@ -69,6 +69,11 @@ export function createEventHandler(
       }
     }
 
+    // Add form data to args for submit events
+    if (eventName === "submit" && element instanceof HTMLFormElement) {
+      args.push(element, event);
+    }
+
     try {
       const grainEl = findClosestGrainElement(element);
       if (!grainEl) {
@@ -96,7 +101,7 @@ export function setupOnDirective(
 ) {
   Array.from(element.attributes).forEach((attr) => {
     if (attr.name.startsWith("g-on:")) {
-      const eventName = attr.name.substring("g-on:".length); //More efficient substring
+      const eventName = attr.name.substring("g-on:".length);
       const funcName = attr.value;
 
       // Validate event name FIRST

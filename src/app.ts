@@ -16,7 +16,7 @@ function bootstrap() {
   store.clear();
 
   const grainElements = document.querySelectorAll<HTMLElement>(
-    DIRECTIVE_SELECTORS.STATE,
+    DIRECTIVE_SELECTORS.STATE
   );
   for (const el of grainElements) {
     setupGrain(el as GrainElement);

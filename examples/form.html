@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Grains.js Form Example</title>
+    <script defer src="../dist/grains.js"></script>
+  </head>
+  <body>
+    <div g-state="formData" g-init="initialState">
+      <form g-on:submit="handleSubmit">
+        <label for="name">Name:</label>
+        <input type="text" id="name" g-model="name" autocomplete="off" />
+        <label for="email">Email:</label>
+        <input type="text" id="email" g-model="email" autocomplete="off" />
+        <button type="submit">Submit</button>
+      </form>
+      <div>
+        <p>Name value: <span g-text="name"></span></p>
+        <p>Email value: <span g-text="email"></span></p>
+        <p g-text="successMessage"></p>
+      </div>
+    </div>
+
+    <script>
+      window.initialState = { name: "", email: "", successMessage: "" };
+      window.handleSubmit = (ctx, args) => {
+        const [form, ev] = args;
+        ev.preventDefault();
+        ctx.set({ name: "", email: "", successMessage: "Form submitted!" });
+      };
+    </script>
+  </body>
+</html>

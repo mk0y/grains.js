@@ -28,8 +28,7 @@ const EVENT_SELECTORS = Array.from(VALID_DOM_EVENTS)
 export const DIRECTIVE_SELECTORS = {
   STATE: "[g-state]",
   INTERACTIVE: `${EVENT_SELECTORS}, [g-action]`,
-  // INTERACTIVE: "[g-on\\:], [g-action]",
-  DYNAMIC: "[g-text], [g-show], [g-class], [g-disabled], [g-attr]",
+  DYNAMIC: "[g-text], [g-show], [g-class], [g-disabled], [g-attr], [g-model]",
   get ALL() {
     return `${this.STATE},${this.INTERACTIVE},${this.DYNAMIC}`;
   },
@@ -45,6 +44,7 @@ export const DIRECTIVES = [
   "g-disabled",
   "g-show",
   "g-attr",
+  "g-model",
 ] as const;
 
 export const MAX_HISTORY = 50;

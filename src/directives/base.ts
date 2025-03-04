@@ -1,11 +1,12 @@
 // src/directives/base.ts
-import { handleTextDirective } from "./text";
-import { handleShowDirective } from "./show";
-import { handleDisabledDirective } from "./disabled";
-import { handleClassDirective } from "./class";
-import { handleAttrDirective } from "./attr";
 import { DIRECTIVES } from "../constants";
 import { DirectiveHandler } from "../types";
+import { handleAttrDirective } from "./attr";
+import { handleClassDirective } from "./class";
+import { handleDisabledDirective } from "./disabled";
+import { handleModelDirective } from "./model";
+import { handleShowDirective } from "./show";
+import { handleTextDirective } from "./text";
 
 // Map of directive names to their handlers
 const directiveHandlers: Record<string, DirectiveHandler> = {
@@ -14,6 +15,7 @@ const directiveHandlers: Record<string, DirectiveHandler> = {
   "g-disabled": handleDisabledDirective,
   "g-class": handleClassDirective,
   "g-attr": handleAttrDirective,
+  "g-model": handleModelDirective,
 };
 
 export function updateElementContent(el: HTMLElement) {
