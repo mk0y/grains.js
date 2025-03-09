@@ -27,40 +27,52 @@ export function handleModelDirective(element: HTMLElement, value: string) {
 
   // Initial value sync
   const initialValue = grainElement.$grain[path];
-  if (
-    isInputElement(element) ||
-    isTextAreaElement(element) ||
-    isSelectElement(element)
-  ) {
+  if (isInputElement(element)) {
+    if (element.type === "checkbox") {
+      element.checked = initialValue ?? false;
+    } else {
+      element.value = initialValue ?? "";
+    }
+  } else if (isTextAreaElement(element) || isSelectElement(element)) {
     element.value = initialValue ?? "";
   }
 
   // Set up event listener for changes
   const handleInput = () => {
-    if (
-      isInputElement(element) ||
-      isTextAreaElement(element) ||
-      isSelectElement(element)
-    ) {
+    if (isInputElement(element)) {
+      if (element.type === "checkbox") {
+        setValueAtPath(grainElement.$grain, path, element.checked);
+      } else {
+        setValueAtPath(grainElement.$grain, path, element.value);
+      }
+    } else if (isTextAreaElement(element) || isSelectElement(element)) {
       setValueAtPath(grainElement.$grain, path, element.value);
-      updateElement(grainElement);
     }
+    updateElement(grainElement);
   };
-  element.addEventListener("input", handleInput);
+  if (isSelectElement(element)) {
+    element.addEventListener("change", handleInput);
+  } else {
+    element.addEventListener("input", handleInput);
+  }
 
   // Set up observer
-  observe(grainElement.$grain, () => {
-    if (
-      isInputElement(element) ||
-      isTextAreaElement(element) ||
-      isSelectElement(element)
-    ) {
+  const updateElementValue = () => {
+    if (isInputElement(element)) {
+      if (element.type === "checkbox") {
+        element.checked = grainElement.$grain[path] ?? false;
+      } else {
+        element.value = grainElement.$grain[path] ?? "";
+      }
+    } else if (isTextAreaElement(element) || isSelectElement(element)) {
       element.value = grainElement.$grain[path] ?? "";
     }
-  });
+  };
+  observe(grainElement.$grain, updateElementValue);
 
   // Cleanup handler
   grainElement.$cleanup = () => {
     element.removeEventListener("input", handleInput);
+    element.removeEventListener("change", handleInput);
   };
 }

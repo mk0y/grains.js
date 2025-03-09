@@ -11,19 +11,35 @@
         <input type="text" id="name" g-model="name" autocomplete="off" />
         <label for="email">Email:</label>
         <input type="text" id="email" g-model="email" autocomplete="off" />
+        <input type="checkbox" name="isActive" g-model="isActive" />
+        <select g-model="selectedOption">
+          <option value="apple">Apple</option>
+          <option value="banana">Banana</option>
+        </select>
         <button type="submit">Submit</button>
       </form>
       <div>
         <p>Name value: <span g-text="name"></span></p>
         <p>Email value: <span g-text="email"></span></p>
         <p g-text="successMessage"></p>
+        <p g-text="isActive"></p>
+        <p g-text="selectedOption"></p>
       </div>
     </div>
 
     <script>
-      window.initialState = { name: "", email: "", successMessage: "" };
+      window.initialState = {
+        name: "",
+        email: "",
+        successMessage: "",
+        isActive: false,
+        selectedOption: "apple",  
+      };
       window.handleSubmit = (ctx, args) => {
         const [form, ev] = args;
+        const isActive = ctx.get("isActive");
+        const selectedOption = ctx.get("selectedOption");
+        console.log({ isActive, selectedOption });
         ev.preventDefault();
         ctx.set({ name: "", email: "", successMessage: "Form submitted!" });
       };
