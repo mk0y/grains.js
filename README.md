@@ -137,10 +137,10 @@ Grains.js uses custom attributes prefixed with g- to manage state and define rea
 
 Several example files demonstrate Grains.js usage:
 
-- `examples/minimal.html`: A basic counter example showcasing core directives.
-- `examples/class.html`: Demonstrates the g-class directive for conditional class binding.
-- `examples/form.html`: Shows how to use g-model for two-way data binding in forms.
-- `examples/transitions.html`: Illustrates integrating animations with state changes using CSS transitions.
+- `examples/minimal.html`: A basic counter example showcasing core directives. ([See it in action](https://mk0y.github.io/grains.js/examples/minimal.html))
+- `examples/class.html`: Demonstrates the g-class directive for conditional class binding. ([See it in action](https://mk0y.github.io/grains.js/examples/class.html))
+- `examples/form.html`: Shows how to use g-model for two-way data binding in forms. ([See it in action](https://mk0y.github.io/grains.js/examples/form.html))
+- `examples/transitions.html`: Illustrates integrating animations with state changes using CSS transitions. ([See it in action](https://mk0y.github.io/grains.js/examples/transitions.html))
 
 ### Sharing State
 
