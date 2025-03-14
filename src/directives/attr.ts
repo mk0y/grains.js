@@ -215,14 +215,3 @@ export function handleAttrDirective(element: HTMLElement, value: string): void {
   const bindings = parseAttrBindings(value, element);
   updateAttributes(element, bindings, grainElement);
 }
-
-export function updateAttrDirective(
-  element: HTMLElement,
-  grainElement: GrainElement,
-): void {
-  const attrDirective = element.getAttribute("g-attr");
-  if (!attrDirective) return;
-
-  const bindings = parseAttrBindings(attrDirective, element);
-  updateAttributes(element, bindings, grainElement);
-}

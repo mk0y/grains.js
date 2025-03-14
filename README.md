@@ -50,6 +50,7 @@ Grains.js uses custom attributes prefixed with g- to manage state and define rea
 - `g-model="{statePath}"`: Enables two-way data binding for form elements (inputs, textareas, selects). Support for other form elements such as files will be added incrementally.
 - `g-class="[expressions]"`: Conditionally applies CSS classes based on the evaluated expression.
 - `g-attr="attrName:expression"`: Dynamically sets or updates an HTML attribute based on the evaluated expression. Multiple attributes can be set using comma-separated pairs (e.g., g-attr="disabled:isDisabled, value:inputValue").
+- `g-for="item in items"`: Creates a new element for each item in the array and applies the value to `textContent`.
 - `g-show="expression"`: Shows or hides an element based on whether the expression evaluates to true or false and the previous value. It uses `display` css property.
 - `g-on:event="handlerName"`: Attaches an event listener. "handlerName" must refer to a globally defined JavaScript function.
 - `g-action="action"`: Triggers undo/redo actions ("undo" or "redo"). Requires a g-state definition.
@@ -61,7 +62,7 @@ Grains.js uses custom attributes prefixed with g- to manage state and define rea
 
 ```html
 <div g-state="counter" g-init='{"count": 0}'>
-  <p g-text="{count}">0</p>
+  <p g-text="count">0</p>
   <button g-on:click="increment">+1</button>
 </div>
 <script>
@@ -95,6 +96,16 @@ Grains.js uses custom attributes prefixed with g- to manage state and define rea
     g-attr="placeholder:placeholderText"
   />
   <p g-text="value"></p>
+</div>
+```
+
+### g-for:
+
+```html
+<div g-state="fruits" g-init='["Apple", "Banana", "Cherry"]'>
+  <ul>
+    <li g-for="fruit in fruits"></li>
+  </ul>
 </div>
 ```
 
@@ -137,10 +148,10 @@ Grains.js uses custom attributes prefixed with g- to manage state and define rea
 
 Several example files demonstrate Grains.js usage:
 
-- `examples/minimal.html`: A basic counter example showcasing core directives.
-- `examples/class.html`: Demonstrates the g-class directive for conditional class binding.
-- `examples/form.html`: Shows how to use g-model for two-way data binding in forms.
-- `examples/transitions.html`: Illustrates integrating animations with state changes using CSS transitions.
+- `examples/minimal.html`: A basic counter example showcasing core directives. ([See it in action](https://mk0y.github.io/grains.js/examples/minimal.html))
+- `examples/class.html`: Demonstrates the g-class directive for conditional class binding. ([See it in action](https://mk0y.github.io/grains.js/examples/class.html))
+- `examples/form.html`: Shows how to use g-model for two-way data binding in forms. ([See it in action](https://mk0y.github.io/grains.js/examples/form.html))
+- `examples/transitions.html`: Illustrates integrating animations with state changes using CSS transitions. ([See it in action](https://mk0y.github.io/grains.js/examples/transitions.html))
 
 ### Sharing State
 
@@ -203,3 +214,16 @@ Or join our [Discord channel](https://discord.gg/RKeBjRKZ).
 ## License
 
 MIT License. See [LICENSE](LICENSE) file for details.
+
+## Roadmap
+
+### Short-Term (Next 1-3 Months):
+
+1. Improved Form Element Support: Add support for more form elements, starting with file inputs and potentially date pickers. This will involve extending the g-model directive and adding necessary validation and error handling.
+2. Enhanced Error Handling: Improve error messages and logging for invalid expressions and directive usage.
+3. Advanced Expression Support: Explore adding support for more advanced JavaScript expressions, such as ternary operators and more complex logical operations within the directives.
+
+### Mid-Term (Next 3-6 Months):
+
+1. Custom Directive Support: Allow developers to create and register their own custom directives, extending the core functionality of Grains.js. This will involve designing a clear and consistent API for custom directive creation.
+2. Performance Optimization: Further optimize performance for large-scale applications, focusing on reducing DOM manipulation and improving update efficiency.

@@ -498,7 +498,6 @@ Features:
 - `parseAttrBindings(directive: string, element: HTMLElement): AttrBinding[]`: Parses the `g-attr` directive string into an array of `AttrBinding` objects. Each `AttrBinding` contains an attribute name and its expression.
 - `updateAttributes(element: HTMLElement, bindings: AttrBinding[], grainElement: GrainElement): void`: Updates the element's attributes based on the provided bindings and the grain element's state.
 - `handleAttrDirective(element: HTMLElement, value: string): void`: Main entry point for handling the `g-attr` directive. Parses the directive value, validates the bindings, and updates the attributes.
-- `updateAttrDirective(element: HTMLElement, grainElement: GrainElement): void`: Updates the attributes of an element with a `g-attr` directive when the grain state changes.
 
 **Variables:**
 
