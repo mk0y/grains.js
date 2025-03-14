@@ -152,6 +152,7 @@ Several example files demonstrate Grains.js usage:
 - `examples/class.html`: Demonstrates the g-class directive for conditional class binding. ([See it in action](https://mk0y.github.io/grains.js/examples/class.html))
 - `examples/form.html`: Shows how to use g-model for two-way data binding in forms. ([See it in action](https://mk0y.github.io/grains.js/examples/form.html))
 - `examples/transitions.html`: Illustrates integrating animations with state changes using CSS transitions. ([See it in action](https://mk0y.github.io/grains.js/examples/transitions.html))
+- `examples/loops.html`: Demonstrates the g-for directive for iterating over arrays. ([See it in action](https://mk0y.github.io/grains.js/examples/loops.html))
 
 ### Sharing State
 
