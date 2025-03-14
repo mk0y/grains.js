@@ -31,3 +31,4 @@ export type GrainContext = {
 };
 
 export type DirectiveHandler = (el: HTMLElement, value: string) => void;
+export type DirectiveForHandler = (el: HTMLElement, value: any[]) => void;

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Grains.js Loops Example</title>
+    <script
+      defer
+      src="../dist/grains.min.js"
+    ></script>
+  </head>
+  <body>
+    <div
+      class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8"
+      g-state="fruits"
+      g-init="fruits"
+    >
+      <ul>
+        <li g-for="fruit in fruits"></li>
+      </ul>
+    </div>
+    <script>
+      window.fruits = ["Apple", "Banana", "Cherry"];
+    </script>
+  </body>
+</html>

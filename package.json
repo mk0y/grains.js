@@ -1,6 +1,6 @@
 {
   "name": "grains.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A lightweight reactive micro-states management library for HTML",
   "type": "module",
   "main": "dist/grains.js",
