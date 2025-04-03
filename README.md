@@ -63,6 +63,7 @@ Grains.js uses custom attributes prefixed with g- to manage state and define rea
 ```html
 <div g-state="counter" g-init='{"count": 0}'>
   <p g-text="count">0</p>
+  <p g-text="f('Formatted value: ${count}')"></p>
   <button g-on:click="increment">+1</button>
 </div>
 <script>

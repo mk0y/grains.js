@@ -592,6 +592,7 @@ Manages dynamic text content updates:
 - Handles various value types (null, undefined, numbers)
 - Safely converts values to strings
 - Cleans up content when state is unavailable
+- Handles format expressions, like `f('Hello, ${message}!')`
 
 Core directive for displaying reactive text content.
 

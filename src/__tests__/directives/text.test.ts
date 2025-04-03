@@ -28,6 +28,20 @@ describe("g-text directive", () => {
     expect(span.textContent).toBe("Hello, world!");
   });
 
+  it("should update text content from a format expression", () => {
+    const message = "world";
+    const count = 3;
+    const item = "apples";
+    container.innerHTML = `
+      <div g-state="test" g-init='{"message": "Hello, world!"}'>
+        <span g-text="f('Hello, ${message}! There are ${count} ${item} left.')"></span>
+      </div>
+    `;
+    bootstrap();
+    const span = container.querySelector("span")!;
+    expect(span.textContent).toBe("Hello, world! There are 3 apples left.");
+  });
+
   it("should update text content from a nested state property", () => {
     container.innerHTML = `
       <div g-state="test" g-init='{"user": {"name": "John Doe"}}'>
